@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+*.egg-info/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (never commit real financial data)
+*.csv
+*.pdf
+*.xlsx
+data/
+
+# n8n local data
+n8n_data/
