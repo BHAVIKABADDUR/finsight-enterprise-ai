@@ -32,6 +32,7 @@ def get_supabase():
     )
 
 # ── Sidebar navigation ────────────────────────────────────────────────────────
+
 st.sidebar.image("https://img.icons8.com/fluency/96/bank.png", width=60)
 st.sidebar.title("FinSight Enterprise AI")
 st.sidebar.markdown("*Financial Document Intelligence*")
@@ -39,7 +40,7 @@ st.sidebar.divider()
 
 page = st.sidebar.radio(
     "Navigation",
-    ["🏠 Analysis", "📊 Dashboard", "🚩 Review Queue", "📋 Audit Log"]
+    ["🏠 Analysis", "📊 Dashboard", "🚩 Review Queue", "📋 Audit Log", "⚙️ System Health"]
 )
 
 st.sidebar.divider()
@@ -449,3 +450,122 @@ elif page == "📋 Audit Log":
 
     except Exception as e:
         st.error(f"Error loading audit log: {e}")
+
+        # ══════════════════════════════════════════════════════════════════════════════
+# PAGE 5: SYSTEM HEALTH
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "⚙️ System Health":
+    st.title("⚙️ System Health")
+    st.markdown("*LLMOps observability — tokens, costs, agent performance*")
+    st.divider()
+
+    try:
+        from llmops.dashboard import get_system_health, get_agent_performance
+
+        health = get_system_health()
+
+        # ── Header metrics ────────────────────────────────────────────────────
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Total Documents", health["total_documents"])
+        col2.metric("Total Transactions", health["total_transactions"])
+        col3.metric(
+            "Flagged Transactions",
+            health["flagged_transactions"],
+            delta="Need Review",
+            delta_color="inverse"
+        )
+        col4.metric("Agent Runs", health["total_agent_runs"])
+
+        st.divider()
+
+        col5, col6, col7, col8 = st.columns(4)
+        col5.metric("Total Tokens Used", f"{health['total_tokens_used']:,}")
+        col6.metric("Total Cost (USD)", f"${health['total_cost_usd']:.4f}")
+        col7.metric("Audit Log Entries", health["total_audit_entries"])
+        col8.metric(
+            "System Status",
+            health["system_status"].upper(),
+            delta="Online",
+            delta_color="normal"
+        )
+
+        st.divider()
+
+        # ── Agent performance ─────────────────────────────────────────────────
+        st.subheader("🤖 Agent Performance")
+        perf = get_agent_performance()
+
+        if perf:
+            import pandas as pd
+            df_perf = pd.DataFrame(perf)
+            df_perf = df_perf[["agent_name", "total_calls"]].rename(columns={
+                "agent_name": "Agent",
+                "total_calls": "Total Calls"
+            })
+            st.dataframe(df_perf, use_container_width=True)
+
+            import plotly.express as px
+            fig = px.bar(
+                df_perf,
+                x="Agent",
+                y="Total Calls",
+                color="Total Calls",
+                color_continuous_scale="Blues",
+                title="Agent Call Frequency"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.divider()
+
+        # ── Pipeline status ───────────────────────────────────────────────────
+        st.subheader("🔄 Pipeline Status")
+        supabase = get_supabase()
+
+        docs_result = supabase.table("documents").select("*").execute()
+        docs = docs_result.data
+
+        if docs:
+            import pandas as pd
+            df_docs = pd.DataFrame(docs)
+            st.dataframe(
+                df_docs[["file_name", "file_type", "status", "uploaded_at"]].rename(
+                    columns={
+                        "file_name": "File",
+                        "file_type": "Type",
+                        "status": "Status",
+                        "uploaded_at": "Uploaded"
+                    }
+                ),
+                use_container_width=True
+            )
+
+        st.divider()
+
+        # ── Extraction results ────────────────────────────────────────────────
+        st.subheader("🔬 Extraction Results")
+        ext_result = supabase.table("extraction_results").select("*").execute()
+        extractions = ext_result.data
+
+        if extractions:
+            for ext in extractions:
+                doc_id = ext.get("document_id", "")[:8]
+                model = ext.get("model_used", "")
+                tokens = ext.get("tokens_used", 0)
+                time_ms = ext.get("extraction_time_ms", 0)
+                confidence = ext.get("confidence_scores", {})
+
+                with st.expander(
+                    f"Document: {doc_id}... | "
+                    f"Model: {model} | "
+                    f"Tokens: {tokens} | "
+                    f"Time: {time_ms}ms"
+                ):
+                    st.json(confidence)
+                    fields = ext.get("extracted_fields", {})
+                    st.json(fields)
+        else:
+            st.info("No extraction results yet. Run the extraction pipeline first.")
+
+    except Exception as e:
+        st.error(f"Error loading system health: {e}")
+        st.exception(e)
