@@ -1,0 +1,225 @@
+{
+  "name": "FinSight - Financial Document Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "60989ee3-924a-45c5-b869-736950c1c536",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -4240,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// FinSight Pipeline Stage 1: Bronze Layer\n// In production this calls the Bronze ingestion API\nconsole.log('Starting Bronze layer ingestion...');\nconst timestamp = new Date().toISOString();\nreturn [{ json: { stage: 'bronze', status: 'triggered', timestamp, message: 'Bronze ingestion pipeline triggered - raw files ingested to Supabase Storage' } }];"
+      },
+      "id": "38e00a2e-1970-44b6-9428-4e3d2522eec5",
+      "name": "Bronze Layer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4000,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// FinSight Pipeline Stage 2: Silver Layer\n// Cleans and validates Bronze data\nconst bronze = $input.first().json;\nconsole.log('Starting Silver layer processing...');\nreturn [{ json: { stage: 'silver', status: 'triggered', timestamp: new Date().toISOString(), previous_stage: bronze.stage, message: 'Silver cleaning pipeline triggered - data validated and anomalies detected' } }];"
+      },
+      "id": "78a6054f-6771-4996-beab-e5f37e99479d",
+      "name": "Silver Layer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3760,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// FinSight Pipeline Stage 3: Gold Layer\n// Computes KPI aggregations\nconst silver = $input.first().json;\nconsole.log('Starting Gold layer computation...');\nreturn [{ json: { stage: 'gold', status: 'triggered', timestamp: new Date().toISOString(), previous_stage: silver.stage, message: 'Gold KPI aggregation triggered - spend by category, monthly trends, flagged summary computed' } }];"
+      },
+      "id": "0284fed1-ee97-4fd5-857f-293f725e0db7",
+      "name": "Gold Layer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3520,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// FinSight Pipeline Stage 4: Agent Analysis\n// Triggers LangGraph multi-agent system\nconst gold = $input.first().json;\nconsole.log('Triggering LangGraph agent analysis...');\n\n// Simulate agent decision for workflow demo\n// In production: HTTP POST to Flask API running agents\nconst riskLevel = 'HIGH'; // Would come from actual agent run\n\nreturn [{ json: { stage: 'agent_analysis', status: 'completed', risk_level: riskLevel, timestamp: new Date().toISOString(), agents_run: ['supervisor', 'extraction_agent', 'analysis_agent', 'decision_agent', 'audit_agent'], message: `Agent analysis complete. Risk level: ${riskLevel}` } }];"
+      },
+      "id": "05d10de2-fe80-44a7-a6ba-587bc9a3e490",
+      "name": "Agent Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3280,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "condition1",
+              "leftValue": "={{ $json.risk_level }}",
+              "rightValue": "HIGH",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9eec9834-1982-44f2-9197-6a4fa754ad63",
+      "name": "Check Risk Level",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -3040,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// HIGH RISK ALERT\nconst analysis = $input.first().json;\nconst alert = {\n  alert_type: 'HIGH_RISK_DETECTED',\n  risk_level: analysis.risk_level,\n  timestamp: new Date().toISOString(),\n  agents_run: analysis.agents_run,\n  action_required: 'IMMEDIATE HUMAN REVIEW REQUIRED',\n  review_url: 'http://localhost:8501',\n  message: 'FinSight detected HIGH RISK transactions. Please review the flagged items in the Review Queue.'\n};\nconsole.log('HIGH RISK ALERT:', JSON.stringify(alert));\nreturn [{ json: alert }];"
+      },
+      "id": "6e400f96-46e7-4842-baf4-c821b58507e8",
+      "name": "High Risk Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2800,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// PIPELINE SUCCESS LOG\nconst analysis = $input.first().json;\nconst log = {\n  status: 'PIPELINE_COMPLETE',\n  risk_level: analysis.risk_level,\n  timestamp: new Date().toISOString(),\n  stages_completed: ['bronze', 'silver', 'gold', 'agent_analysis'],\n  message: 'FinSight pipeline completed successfully. No immediate action required.'\n};\nconsole.log('Pipeline success:', JSON.stringify(log));\nreturn [{ json: log }];"
+      },
+      "id": "065cbec7-85a2-4525-a696-04f80d86a73b",
+      "name": "Pipeline Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2800,
+        528
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Bronze Layer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bronze Layer": {
+      "main": [
+        [
+          {
+            "node": "Silver Layer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Silver Layer": {
+      "main": [
+        [
+          {
+            "node": "Gold Layer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gold Layer": {
+      "main": [
+        [
+          {
+            "node": "Agent Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Analysis": {
+      "main": [
+        [
+          {
+            "node": "Check Risk Level",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Risk Level": {
+      "main": [
+        [
+          {
+            "node": "High Risk Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pipeline Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4e512eb3-db37-450c-b276-a27276f9b9f0",
+  "meta": {
+    "instanceId": "8f7aa0f28e6bc223860898ee87d420eaeda406fa00241e63498a6fd23cfde1f0"
+  },
+  "nodeGroups": [],
+  "id": "FOhCSy5maIIqxRuV",
+  "tags": []
+}
