@@ -193,14 +193,16 @@ h3 { font-weight: 600 !important; font-size: 1.05rem !important; }
     color: var(--ink-faint) !important;
 }
 
-.stButton button {
+..stButton button {
     font-family: 'IBM Plex Mono', monospace !important;
     font-weight: 600 !important;
     border-radius: 2px !important;
     border: 1.5px solid var(--ink) !important;
     letter-spacing: 0.02em;
     font-size: 0.85rem !important;
-    transition: all 0.15s ease;
+    position: relative;
+    z-index: 1;
+}
 }
 .stButton button[kind="primary"] {
     background-color: var(--ink) !important;
