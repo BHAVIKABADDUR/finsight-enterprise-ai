@@ -56,7 +56,7 @@ if page == "🏠 Analysis":
     st.markdown("*Intelligent Financial Document Analysis powered by LangGraph Agents*")
     st.divider()
 
-    tab1, tab2 = st.tabs(["💬 Query Analysis", "📄 Upload Document"])
+    tab1, tab2, tab3 = st.tabs(["💬 Query Analysis", "📄 Upload Document", "🔎 SQL Search"])
 
     # ── TAB 1: Query Analysis ─────────────────────────────────────────────────
     with tab1:
@@ -302,6 +302,77 @@ if page == "🏠 Analysis":
                     except Exception as e:
                         st.error(f"Processing failed: {str(e)}")
                         st.exception(e)
+
+       # ── TAB 3: SQL Search ─────────────────────────────────────────────────────
+    with tab3:
+        st.subheader("🔎 Natural Language Transaction Search")
+        st.markdown("Ask questions in plain English — an AI agent converts it into a safe database query.")
+        st.divider()
+
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            sql_query = st.text_input(
+                "Ask a question:",
+                value=st.session_state.get("sql_query_input", ""),
+                placeholder="e.g. Show me all transactions over AED 10,000"
+            )
+        with col2:
+            st.markdown("**Try these:**")
+            if st.button("💰 Large transactions", use_container_width=True):
+                st.session_state["sql_query_input"] = "Show me all transactions over AED 10,000"
+                st.rerun()
+            if st.button("🚩 Flagged items", use_container_width=True):
+                st.session_state["sql_query_input"] = "What flagged transactions do we have?"
+                st.rerun()
+            if st.button("🏦 Salary payments", use_container_width=True):
+                st.session_state["sql_query_input"] = "Show me all salary transactions"
+                st.rerun()
+
+        st.divider()
+
+        if st.button("🔍 Search", type="primary", use_container_width=True):
+            if not sql_query:
+                st.error("Please enter a question first")
+            else:
+                with st.spinner("🤖 Converting your question into a safe query..."):
+                    try:
+                        from agents.sql_agent import query_with_natural_language
+                        result = query_with_natural_language(sql_query)
+
+                        st.success(f"✅ {result['explanation']}")
+
+                        with st.expander("🔧 Technical details (filters applied)"):
+                            for f in result["applied_filters"]:
+                                st.code(f, language="sql")
+
+                        st.markdown(f"**{result['result_count']} results found**")
+
+                        if result["results"]:
+                            import pandas as pd
+                            df_results = pd.DataFrame(result["results"])
+
+                            display_cols = [
+                                "transaction_date", "description", "amount",
+                                "transaction_type", "category", "is_flagged"
+                            ]
+                            display_cols = [c for c in display_cols if c in df_results.columns]
+
+                            df_display = df_results[display_cols].rename(columns={
+                                "transaction_date": "Date",
+                                "description": "Description",
+                                "amount": "Amount (AED)",
+                                "transaction_type": "Type",
+                                "category": "Category",
+                                "is_flagged": "Flagged"
+                            })
+
+                            st.dataframe(df_display, use_container_width=True)
+                        else:
+                            st.info("No matching transactions found.")
+
+                    except Exception as e:
+                        st.error(f"Search failed: {str(e)}")
+                        st.exception(e)                 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE 2: DASHBOARD
