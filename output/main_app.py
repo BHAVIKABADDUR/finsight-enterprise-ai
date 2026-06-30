@@ -39,7 +39,7 @@ st.sidebar.divider()
 
 page = st.sidebar.radio(
     "Navigation",
-    ["🏠 Analysis", "📊 Dashboard", "🚩 Review Queue", "📋 Audit Log", "⚙️ System Health"]
+    ["🏠 Analysis", "📊 Dashboard", "📈 Trend Comparison", "🚩 Review Queue", "📋 Audit Log", "⚙️ System Health"]
 )
 
 st.sidebar.divider()
@@ -516,6 +516,112 @@ elif page == "📊 Dashboard":
             st.info("No flagged transactions.")
     except Exception as e:
         st.error(f"Error loading flagged summary: {e}")
+
+    # ══════════════════════════════════════════════════════════════════════════════
+# PAGE: TREND COMPARISON
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📈 Trend Comparison":
+    st.title("📈 Multi-Period Trend Comparison")
+    st.markdown("*AI-powered comparison of spending patterns and risk trajectory across months*")
+    st.divider()
+
+    focus = st.text_input(
+        "What should the comparison focus on?",
+        value="spending patterns and risk trends across all months",
+        help="e.g. 'Transfer category spending' or 'flagged transaction trends'"
+    )
+
+    if st.button("📊 Run Comparison Analysis", type="primary", use_container_width=True):
+        with st.spinner("🤖 Comparing periods and identifying trends..."):
+            try:
+                from agents.comparison_agent import compare_periods
+                result = compare_periods(focus)
+                comparison = result["comparison"]
+
+                st.divider()
+
+                risk_trajectory = comparison.get("risk_trajectory", "unknown").upper()
+                if risk_trajectory == "WORSENING":
+                    st.error(f"📉 Risk Trajectory: {risk_trajectory}")
+                elif risk_trajectory == "IMPROVING":
+                    st.success(f"📈 Risk Trajectory: {risk_trajectory}")
+                else:
+                    st.info(f"➡️ Risk Trajectory: {risk_trajectory}")
+
+                st.subheader("📋 Trend Summary")
+                st.info(comparison.get("trend_summary", "No summary available"))
+
+                st.divider()
+
+                st.subheader("📅 Period-by-Period Breakdown")
+                period_comparisons = comparison.get("period_comparisons", [])
+
+                if period_comparisons:
+                    import pandas as pd
+                    import plotly.express as px
+
+                    df_periods = []
+                    for p in period_comparisons:
+                        spend = p.get("total_spend", 0)
+                        try:
+                            spend = float(spend)
+                        except (ValueError, TypeError):
+                            spend = 0.0
+                        df_periods.append({
+                            "Period": p.get("period", ""),
+                            "Total Spend (AED)": spend,
+                            "Change": p.get("change_from_previous", ""),
+                            "Notable Change": p.get("notable_change", "")
+                        })
+
+                    df_periods = pd.DataFrame(df_periods)
+
+                    fig = px.line(
+                        df_periods, x="Period", y="Total Spend (AED)",
+                        markers=True, title="Spend Trend Across Periods"
+                    )
+                    fig.update_traces(line_color="#1a1a2e", line_width=3)
+                    st.plotly_chart(fig, use_container_width=True)
+
+                    for p in period_comparisons:
+                        spend = p.get("total_spend", 0)
+                        try:
+                            spend = float(spend)
+                        except (ValueError, TypeError):
+                            spend = 0.0
+                        change_pct = p.get("change_percentage", 0)
+                        try:
+                            change_pct = float(change_pct)
+                        except (ValueError, TypeError):
+                            change_pct = 0.0
+
+                        with st.expander(f"{p.get('period', '')} — AED {spend:,.2f} ({change_pct:+.1f}%)"):
+                            st.markdown(f"**Change:** {p.get('change_from_previous', 'N/A')}")
+                            st.markdown(f"**Notable:** {p.get('notable_change', '')}")
+
+                st.divider()
+
+                st.subheader("🔄 Category Shifts")
+                for shift in comparison.get("category_shifts", []):
+                    trend = shift.get("trend", "stable")
+                    if trend == "increasing":
+                        st.warning(f"📈 **{shift.get('category', '')}**: {shift.get('observation', '')}")
+                    elif trend == "decreasing":
+                        st.success(f"📉 **{shift.get('category', '')}**: {shift.get('observation', '')}")
+                    else:
+                        st.info(f"➡️ **{shift.get('category', '')}**: {shift.get('observation', '')}")
+
+                st.divider()
+
+                st.subheader("💡 Key Insight")
+                st.success(comparison.get("key_insight", ""))
+
+                st.subheader("✅ Recommendation")
+                st.info(comparison.get("recommendation", ""))
+
+            except Exception as e:
+                st.error(f"Comparison failed: {str(e)}")
+                st.exception(e)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE 3: REVIEW QUEUE
