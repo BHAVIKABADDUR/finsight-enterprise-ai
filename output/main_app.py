@@ -58,7 +58,7 @@ if page == "🏠 Analysis":
 
     tab1, tab2, tab3 = st.tabs(["💬 Query Analysis", "📄 Upload Document", "🔎 SQL Search"])
 
-    # ── TAB 1: Query Analysis ─────────────────────────────────────────────────
+   # ── TAB 1: Query Analysis ─────────────────────────────────────────────────
     with tab1:
         col1, col2 = st.columns([3, 1])
         with col1:
@@ -90,6 +90,8 @@ if page == "🏠 Analysis":
                     try:
                         from agents.graph import run_analysis
                         result = run_analysis(query)
+                        st.session_state["last_analysis_result"] = result
+                        st.session_state["last_analysis_query"] = query
 
                         decision = result.get("final_decision", {})
                         analysis = result.get("analysis_results", {})
@@ -147,6 +149,32 @@ if page == "🏠 Analysis":
                         st.error(f"Analysis failed: {str(e)}")
                         st.exception(e)
 
+        # ── Export Report Button (persists across reruns) ────────────────────
+        if "last_analysis_result" in st.session_state:
+            st.divider()
+            if st.button("📄 Export PDF Report", use_container_width=True, key="export_query_report"):
+                with st.spinner("Generating professional PDF report..."):
+                    from llmops.report_generator import generate_analysis_report
+                    stored_result = st.session_state["last_analysis_result"]
+                    report_path = generate_analysis_report(
+                        decision=stored_result.get("final_decision", {}),
+                        analysis=stored_result.get("analysis_results", {}),
+                        extracted=stored_result.get("extracted_data", {}),
+                        query=st.session_state.get("last_analysis_query", ""),
+                        run_id=stored_result.get("run_id", "unknown")
+                    )
+
+                    with open(report_path, "rb") as f:
+                        st.download_button(
+                            label="⬇️ Download Report",
+                            data=f,
+                            file_name=os.path.basename(report_path),
+                            mime="application/pdf",
+                            use_container_width=True,
+                            key="download_query_report"
+                        )
+                    st.success(f"✅ Report generated successfully")
+                    
     # ── TAB 2: Upload Document ────────────────────────────────────────────────
     with tab2:
         st.subheader("📄 Upload Financial Document")
@@ -297,13 +325,37 @@ if page == "🏠 Analysis":
 
                         st.success(f"✅ Document fully processed and analysed. Document ID: {doc_id[:8]}...")
 
+                        # ── Export Report Button ──────────────────────────────
+                        st.divider()
+                        if st.button("📄 Export PDF Report", use_container_width=True, key="export_upload_report"):
+                            with st.spinner("Generating professional PDF report..."):
+                                from llmops.report_generator import generate_analysis_report
+                                report_path = generate_analysis_report(
+                                    decision=decision,
+                                    analysis=result.get("analysis_results", {}),
+                                    extracted=result.get("extracted_data", {}),
+                                    query=query,
+                                    run_id=result.get("run_id", "unknown")
+                                )
+
+                                with open(report_path, "rb") as f:
+                                    st.download_button(
+                                        label="⬇️ Download Report",
+                                        data=f,
+                                        file_name=os.path.basename(report_path),
+                                        mime="application/pdf",
+                                        use_container_width=True,
+                                        key="download_upload_report"
+                                    )
+                                st.success(f"✅ Report generated successfully")
+
                         os.unlink(tmp_path)
 
                     except Exception as e:
                         st.error(f"Processing failed: {str(e)}")
                         st.exception(e)
 
-       # ── TAB 3: SQL Search ─────────────────────────────────────────────────────
+    # ── TAB 3: SQL Search ─────────────────────────────────────────────────────
     with tab3:
         st.subheader("🔎 Natural Language Transaction Search")
         st.markdown("Ask questions in plain English — an AI agent converts it into a safe database query.")
@@ -372,7 +424,7 @@ if page == "🏠 Analysis":
 
                     except Exception as e:
                         st.error(f"Search failed: {str(e)}")
-                        st.exception(e)                 
+                        st.exception(e)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE 2: DASHBOARD
