@@ -11,10 +11,25 @@ from agents.state import FinSightState
 
 load_dotenv()
 
+# ── Load Streamlit secrets into env on cloud ──────────────────────────────────
+try:
+    import streamlit as st
+    for key, value in st.secrets.items():
+        os.environ[key] = str(value)
+except Exception:
+    pass
+
 def get_llm():
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        try:
+            import streamlit as st
+            api_key = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            pass
     return ChatGroq(
         model="llama-3.3-70b-versatile",
-        api_key=os.getenv("GROQ_API_KEY"),
+        api_key=api_key,
         temperature=0
     )
 
@@ -55,9 +70,9 @@ def decision_agent_node(state: FinSightState) -> FinSightState:
     llm = get_llm()
     analysis = state.get("analysis_results", {})
     extracted = state.get("extracted_data", {})
-    
+
     print(f"\n⚖️  Decision Agent running...")
-    
+
     context = f"""
 Original Query: {state['query']}
 
@@ -69,15 +84,14 @@ Transaction Summary:
 
 Make a final decision on the risk level and required actions.
 """
-    
+
     messages = [
         SystemMessage(content=DECISION_PROMPT),
         HumanMessage(content=context)
     ]
-    
+
     response = llm.invoke(messages)
-    
-    # Parse response
+
     try:
         content = response.content
         start = content.find("{")
@@ -100,14 +114,14 @@ Make a final decision on the risk level and required actions.
             "executive_summary": "Analysis completed. Manual review recommended.",
             "decision_reasoning": "Default decision due to parsing error"
         }
-    
+
     risk = decision.get("overall_risk_rating", "MEDIUM")
     requires_review = decision.get("requires_human_review", False)
-    
+
     print(f"   Risk rating: {risk}")
     print(f"   Requires human review: {requires_review}")
     print(f"   Summary: {decision.get('executive_summary', '')[:80]}")
-    
+
     return {
         **state,
         "next_agent": "audit_agent",

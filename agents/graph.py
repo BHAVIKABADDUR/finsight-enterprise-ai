@@ -15,9 +15,15 @@ from agents.audit_agent import audit_agent_node
 
 load_dotenv()
 
+# ── Load Streamlit secrets into env on cloud ──────────────────────────────────
+try:
+    import streamlit as st
+    for key, value in st.secrets.items():
+        os.environ[key] = str(value)
+except Exception:
+    pass
+
 # ── LangSmith tracing setup ───────────────────────────────────────────────────
-# These environment variables activate tracing automatically
-# Every LLM call will be recorded in LangSmith dashboard
 os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2", "true")
 os.environ["LANGCHAIN_PROJECT"] = os.getenv(
     "LANGCHAIN_PROJECT", "finsight-enterprise-ai"
@@ -29,13 +35,6 @@ from langsmith import traceable
 
 # ── Build the graph ───────────────────────────────────────────────────────────
 def build_graph():
-    """
-    Builds and compiles the LangGraph agent graph.
-    LangSmith automatically traces every LLM call inside each node.
-    
-    Graph structure:
-    START → supervisor → extraction → analysis → decision → audit → END
-    """
     graph = StateGraph(FinSightState)
 
     graph.add_node("supervisor", supervisor_node)
@@ -59,21 +58,6 @@ def build_graph():
     tags=["finsight", "financial-ai", "multi-agent"]
 )
 def run_analysis(query: str) -> dict:
-    """
-    Run a complete financial analysis using the agent graph.
-    
-    @traceable decorator means LangSmith records:
-    - The full run as a single trace
-    - Every LLM call inside as child spans
-    - Token counts and latency per span
-    - Input query and final output
-    
-    Args:
-        query: Natural language question about the financial data
-        
-    Returns:
-        Final state containing all agent outputs
-    """
     graph = build_graph()
     run_id = str(uuid.uuid4())
 
@@ -107,7 +91,6 @@ def run_analysis(query: str) -> dict:
 
 # ── Verify LangSmith connection ───────────────────────────────────────────────
 def verify_langsmith():
-    """Check LangSmith is connected and project exists."""
     try:
         client = Client(api_key=os.getenv("LANGSMITH_API_KEY"))
         projects = list(client.list_projects())
@@ -125,10 +108,8 @@ def verify_langsmith():
 
 # ── Main runner ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    # Verify LangSmith first
     verify_langsmith()
 
-    # Run analysis
     result = run_analysis(
         "Analyse our financial transactions and identify "
         "any suspicious activity or anomalies that need review."

@@ -1,29 +1,40 @@
 # agents/supervisor.py
 # The Supervisor agent — routes queries to the right agents
 # Acts as the orchestrator of the entire system
-
 import os
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 from agents.state import FinSightState
-
 load_dotenv()
+
+# ── Load Streamlit secrets into env on cloud ──────────────────────────────────
+try:
+    import streamlit as st
+    for key, value in st.secrets.items():
+        os.environ[key] = str(value)
+except Exception:
+    pass
 
 # ── LLM setup ─────────────────────────────────────────────────────────────────
 def get_llm():
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        try:
+            import streamlit as st
+            api_key = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            pass
     return ChatGroq(
         model="llama-3.3-70b-versatile",
-        api_key=os.getenv("GROQ_API_KEY"),
+        api_key=api_key,
         temperature=0
     )
 
 # ── Supervisor system prompt ──────────────────────────────────────────────────
 SUPERVISOR_PROMPT = """You are the Supervisor of FinSight Enterprise AI, 
 a financial document intelligence system.
-
 Your job is to analyse the user's query and decide what needs to be done.
-
 You always respond with a JSON object in this exact format:
 {
     "intent": "one of: analyse_transactions, check_anomalies, get_summary, full_analysis",
@@ -31,13 +42,11 @@ You always respond with a JSON object in this exact format:
     "reasoning": "why you chose this intent",
     "focus_areas": ["list", "of", "things", "to", "focus", "on"]
 }
-
 Intent definitions:
 - analyse_transactions: User wants to understand transaction patterns
 - check_anomalies: User wants to find suspicious or flagged transactions  
 - get_summary: User wants a high-level overview
 - full_analysis: User wants a complete deep-dive analysis
-
 Always set next_agent to "extraction_agent" — it always goes there first.
 """
 
@@ -59,18 +68,14 @@ def supervisor_node(state: FinSightState) -> FinSightState:
     
     response = llm.invoke(messages)
     
-    # Parse the JSON response
     import json
     try:
-        # Extract JSON from response
         content = response.content
-        # Find JSON block in response
         start = content.find("{")
         end = content.rfind("}") + 1
         json_str = content[start:end]
         decision = json.loads(json_str)
     except Exception as e:
-        # Fallback if JSON parsing fails
         decision = {
             "intent": "full_analysis",
             "next_agent": "extraction_agent",

@@ -11,10 +11,25 @@ from agents.state import FinSightState
 
 load_dotenv()
 
+# ── Load Streamlit secrets into env on cloud ──────────────────────────────────
+try:
+    import streamlit as st
+    for key, value in st.secrets.items():
+        os.environ[key] = str(value)
+except Exception:
+    pass
+
 def get_llm():
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        try:
+            import streamlit as st
+            api_key = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            pass
     return ChatGroq(
         model="llama-3.3-70b-versatile",
-        api_key=os.getenv("GROQ_API_KEY"),
+        api_key=api_key,
         temperature=0
     )
 
@@ -57,18 +72,17 @@ def analysis_agent_node(state: FinSightState) -> FinSightState:
     """
     llm = get_llm()
     extracted = state.get("extracted_data", {})
-    
+
     print(f"\n🔍 Analysis Agent running...")
-    
-    # Build analysis context
+
     transactions = extracted.get("transactions", {})
     kpis = extracted.get("kpis", {})
     extraction_summary = extracted.get("extraction_summary", {})
-    
+
     flagged = transactions.get("flagged_transactions", [])
     top_categories = kpis.get("top_categories", [])
     monthly_trends = kpis.get("monthly_trends", [])
-    
+
     context = f"""
 Query: {state['query']}
 
@@ -85,15 +99,14 @@ Top Spending Categories:
 Monthly Trends:
 {json.dumps(monthly_trends, indent=2, default=str)}
 """
-    
+
     messages = [
         SystemMessage(content=ANALYSIS_PROMPT),
         HumanMessage(content=context)
     ]
-    
+
     response = llm.invoke(messages)
-    
-    # Parse response
+
     try:
         content = response.content
         start = content.find("{")
@@ -113,13 +126,13 @@ Monthly Trends:
             "key_risks": [],
             "analysis_summary": "Analysis completed with partial data"
         }
-    
+
     risk_level = analysis_result.get(
         "anomaly_assessment", {}
     ).get("risk_level", "medium")
     print(f"   Risk level: {risk_level}")
     print(f"   Summary: {analysis_result.get('analysis_summary', '')[:80]}")
-    
+
     return {
         **state,
         "next_agent": "decision_agent",
