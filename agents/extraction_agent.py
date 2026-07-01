@@ -4,8 +4,6 @@
 
 import os
 import json
-import subprocess
-import tempfile
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -14,9 +12,16 @@ from loguru import logger
 load_dotenv()
 
 def get_llm():
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        try:
+            import streamlit as st
+            api_key = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            pass
     return ChatGroq(
         model="llama-3.3-70b-versatile",
-        api_key=os.getenv("GROQ_API_KEY"),
+        api_key=api_key,
         temperature=0
     )
 
@@ -27,8 +32,6 @@ def call_mcp_tool(server_module: str, tool_name: str, arguments: dict) -> dict:
     On Streamlit Cloud, MCP subprocess calls are not supported —
     falls back to direct Supabase queries automatically.
     """
-    # ── Cloud environment detection ───────────────────────────────────────────
-    # Streamlit Cloud runs as /home/adminuser — MCP subprocesses not supported
     is_cloud = (
         os.getenv("HOME", "").startswith("/home/adminuser") or
         os.getenv("STREAMLIT_SHARING_MODE") is not None or
@@ -48,7 +51,6 @@ def call_mcp_tool(server_module: str, tool_name: str, arguments: dict) -> dict:
             args=["-m", server_module],
             env=dict(os.environ)
         )
-
         async with stdio_client(server_params) as (read, write):
             async with ClientSession(read, write) as session:
                 await session.initialize()
@@ -63,11 +65,9 @@ def call_mcp_tool(server_module: str, tool_name: str, arguments: dict) -> dict:
         logger.error(f"MCP tool call failed: {server_module}.{tool_name} — {e}")
         return _fallback_query(tool_name, arguments)
 
+
 def _fallback_query(tool_name: str, arguments: dict) -> dict:
-    """
-    Fallback direct Supabase query if MCP call fails.
-    Ensures system keeps working even if MCP server has issues.
-    """
+    """Fallback direct Supabase query if MCP call fails."""
     from supabase import create_client
     supabase = create_client(
         os.getenv("SUPABASE_URL"),
@@ -96,9 +96,9 @@ def _fallback_query(tool_name: str, arguments: dict) -> dict:
         }
 
     elif tool_name == "get_flagged_transactions":
-        result = supabase.table("transactions").select("*").eq(
-            "is_flagged", True
-        ).execute()
+        result = supabase.table("transactions").select(
+            "id, transaction_date, description, amount, flag_reason"
+        ).eq("is_flagged", True).limit(5).execute()
         return {"flagged_transactions": result.data, "flagged_count": len(result.data)}
 
     elif tool_name == "get_spend_by_category":
@@ -112,6 +112,7 @@ def _fallback_query(tool_name: str, arguments: dict) -> dict:
         return {"by_type": result.data}
 
     return {}
+
 
 # ── Agent prompt ──────────────────────────────────────────────────────────────
 EXTRACTION_PROMPT = """You are the Extraction Agent for FinSight Enterprise AI.
@@ -131,62 +132,29 @@ Respond with a JSON object:
 }
 """
 
+
 # ── Agent node ────────────────────────────────────────────────────────────────
 def extraction_agent_node(state):
     """
     Fetches data via MCP tool servers based on supervisor intent.
     Falls back to direct queries if MCP unavailable.
     """
-    from agents.state import FinSightState
     llm = get_llm()
     intent = state.get("extracted_data", {}).get("intent", "full_analysis")
 
-    logger.info(f"\n📊 Extraction Agent running via MCP tools (intent: {intent})")
+    logger.info(f"\n📊 Extraction Agent running (intent: {intent})")
 
-    # Tool 1: Get transaction summary
-    logger.info("   Calling MCP: get_transaction_summary")
-    summary_data = call_mcp_tool(
-        "mcp_servers.query_transactions",
-        "get_transaction_summary",
-        {}
-    )
+    summary_data = call_mcp_tool("mcp_servers.query_transactions", "get_transaction_summary", {})
+    flagged_data = call_mcp_tool("mcp_servers.query_transactions", "get_flagged_transactions", {})
+    kpi_data = call_mcp_tool("mcp_servers.run_analytics", "get_spend_by_category", {"top_n": 5})
+    risk_data = call_mcp_tool("mcp_servers.run_analytics", "get_risk_summary", {})
 
-    # Tool 2: Get flagged transactions
-    logger.info("   Calling MCP: get_flagged_transactions")
-    flagged_data = call_mcp_tool(
-        "mcp_servers.query_transactions",
-        "get_flagged_transactions",
-        {}
-    )
-    # Truncate flagged transactions to avoid token limit on cloud
-if flagged_data.get("flagged_transactions"):
-    flagged_data["flagged_transactions"] = flagged_data["flagged_transactions"][:10]
+    logger.success("   All data retrieved")
 
-    # Tool 3: Get KPI spend by category
-    logger.info("   Calling MCP: get_spend_by_category")
-    kpi_data = call_mcp_tool(
-        "mcp_servers.run_analytics",
-        "get_spend_by_category",
-        {"top_n": 5}
-    )
-
-    # Tool 4: Get risk summary
-    logger.info("   Calling MCP: get_risk_summary")
-    risk_data = call_mcp_tool(
-        "mcp_servers.run_analytics",
-        "get_risk_summary",
-        {}
-    )
-
-    logger.success("   All MCP tool calls complete")
-
-    # ── LLM summarization ─────────────────────────────────────────────────────
-# Truncate all data to stay within Groq free tier token limits
     flagged_list = flagged_data.get("flagged_transactions", [])[:5]
     top_cats = kpi_data.get("spend_by_category", [])[:5]
 
-    context = f"""
-Query: {state['query']}
+    context = f"""Query: {state['query']}
 Intent: {intent}
 
 Transaction Summary:
@@ -195,15 +163,14 @@ Transaction Summary:
 - Debit: AED {summary_data.get('total_debit_aed', 0):,.0f}
 - Flagged: {summary_data.get('flagged_count', 0)}
 
-Top 5 Flagged Transactions:
-{json.dumps(flagged_list, indent=2, default=str)[:1000]}
+Top Flagged Transactions (5):
+{json.dumps(flagged_list, default=str)[:800]}
 
-Top 5 Spending Categories:
-{json.dumps(top_cats, indent=2, default=str)[:500]}
+Top Spending Categories (5):
+{json.dumps(top_cats, default=str)[:400]}
 
 Risk Summary:
-{json.dumps(risk_data, indent=2, default=str)[:300]}
-"""
+{json.dumps(risk_data, default=str)[:300]}"""
 
     messages = [
         SystemMessage(content=EXTRACTION_PROMPT),
@@ -219,7 +186,7 @@ Risk Summary:
         extraction_result = json.loads(content[start:end])
     except Exception:
         extraction_result = {
-            "data_summary": "Data extracted via MCP tools successfully",
+            "data_summary": "Data extracted successfully",
             "key_findings": [],
             "anomalies_found": [],
             "recommended_focus": "Review flagged transactions"
