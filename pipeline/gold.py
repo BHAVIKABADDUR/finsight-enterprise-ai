@@ -30,7 +30,6 @@ def compute_spend_by_category(supabase: Client) -> list:
 
     transactions = result.data
 
-    # Group by category in Python
     category_map = {}
     for txn in transactions:
         cat = txn.get("category", "Unknown")
@@ -46,7 +45,6 @@ def compute_spend_by_category(supabase: Client) -> list:
         category_map[cat]["total_amount"] += amount
         category_map[cat]["transaction_count"] += 1
 
-    # Build records
     records = []
     for category, data in category_map.items():
         count = data["transaction_count"]
@@ -59,7 +57,6 @@ def compute_spend_by_category(supabase: Client) -> list:
             "currency": data["currency"]
         })
 
-    # Sort by total amount descending
     records.sort(key=lambda x: x["total_amount"], reverse=True)
 
     logger.success(f"Computed {len(records)} category KPIs")
@@ -79,7 +76,6 @@ def compute_monthly_trends(supabase: Client) -> list:
 
     transactions = result.data
 
-    # Group by year-month
     monthly_map = {}
     for txn in transactions:
         date_str = txn.get("transaction_date", "")
@@ -118,7 +114,6 @@ def compute_monthly_trends(supabase: Client) -> list:
         if is_flagged:
             monthly_map[key]["flagged_count"] += 1
 
-    # Build records
     records = []
     for key, data in monthly_map.items():
         records.append({
@@ -130,8 +125,13 @@ def compute_monthly_trends(supabase: Client) -> list:
             "flagged_count": data["flagged_count"]
         })
 
-    # Sort by year then month
-    records.sort(key=lambda x: (x["year"], x["month"]))
+    # Sort by year then month NUMBER (not alphabetically by month name)
+    month_order = {
+        "January": 1, "February": 2, "March": 3, "April": 4,
+        "May": 5, "June": 6, "July": 7, "August": 8,
+        "September": 9, "October": 10, "November": 11, "December": 12
+    }
+    records.sort(key=lambda x: (x["year"], month_order.get(x["month"], 0)))
 
     logger.success(f"Computed {len(records)} monthly trend KPIs")
     return records
@@ -154,13 +154,11 @@ def compute_flagged_summary(supabase: Client) -> list:
         logger.info("No flagged transactions found")
         return []
 
-    # Group by flag reason type
     reason_map = {}
     for txn in flagged:
         reason = txn.get("flag_reason", "Unknown")
         amount = float(txn.get("amount", 0))
 
-        # Simplify reason to a type
         if "large" in reason.lower():
             reason_type = "Large Amount"
         elif "duplicate" in reason.lower():
@@ -203,10 +201,7 @@ def write_gold_kpis(supabase: Client, table: str, records: list):
         logger.warning(f"No records to write to {table}")
         return
 
-    # Delete old KPIs (we recompute from scratch each time)
     supabase.table(table).delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
-
-    # Insert fresh KPIs
     supabase.table(table).insert(records).execute()
     logger.success(f"Written {len(records)} records to {table}")
 
@@ -216,12 +211,10 @@ if __name__ == "__main__":
 
     logger.info("Starting Gold Layer computation...")
 
-    # Compute all KPIs
     spend_by_category = compute_spend_by_category(supabase)
     monthly_trends = compute_monthly_trends(supabase)
     flagged_summary = compute_flagged_summary(supabase)
 
-    # Write to Gold tables
     write_gold_kpis(supabase, "gold_spend_by_category", spend_by_category)
     write_gold_kpis(supabase, "gold_monthly_trends", monthly_trends)
     write_gold_kpis(supabase, "gold_flagged_summary", flagged_summary)
