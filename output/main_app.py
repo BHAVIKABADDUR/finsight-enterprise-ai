@@ -13,6 +13,12 @@ from dotenv import load_dotenv
 from supabase import create_client
 from datetime import datetime
 
+# ── Load Streamlit secrets into environment (cloud deployment) ────────────────
+try:
+    for key, value in st.secrets.items():
+        os.environ[key] = str(value)
+except Exception:
+    pass
 load_dotenv()
 
 st.set_page_config(
