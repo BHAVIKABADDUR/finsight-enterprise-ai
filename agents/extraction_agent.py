@@ -158,6 +158,9 @@ def extraction_agent_node(state):
         "get_flagged_transactions",
         {}
     )
+    # Truncate flagged transactions to avoid token limit on cloud
+if flagged_data.get("flagged_transactions"):
+    flagged_data["flagged_transactions"] = flagged_data["flagged_transactions"][:10]
 
     # Tool 3: Get KPI spend by category
     logger.info("   Calling MCP: get_spend_by_category")
@@ -185,8 +188,8 @@ Intent: {intent}
 Transaction Summary (via MCP query_transactions):
 {json.dumps(summary_data, indent=2)}
 
-Flagged Transactions (via MCP query_transactions):
-{json.dumps(flagged_data, indent=2, default=str)}
+Flagged Transactions (via MCP query_transactions, showing top 10):
+{json.dumps(flagged_data, indent=2, default=str)[:2000]}
 
 Top Spending Categories (via MCP run_analytics):
 {json.dumps(kpi_data, indent=2, default=str)}
