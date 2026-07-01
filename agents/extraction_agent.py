@@ -181,21 +181,28 @@ if flagged_data.get("flagged_transactions"):
     logger.success("   All MCP tool calls complete")
 
     # ── LLM summarization ─────────────────────────────────────────────────────
+# Truncate all data to stay within Groq free tier token limits
+    flagged_list = flagged_data.get("flagged_transactions", [])[:5]
+    top_cats = kpi_data.get("spend_by_category", [])[:5]
+
     context = f"""
 Query: {state['query']}
 Intent: {intent}
 
-Transaction Summary (via MCP query_transactions):
-{json.dumps(summary_data, indent=2)}
+Transaction Summary:
+- Total: {summary_data.get('total_transactions', 0)}
+- Credit: AED {summary_data.get('total_credit_aed', 0):,.0f}
+- Debit: AED {summary_data.get('total_debit_aed', 0):,.0f}
+- Flagged: {summary_data.get('flagged_count', 0)}
 
-Flagged Transactions (via MCP query_transactions, showing top 10):
-{json.dumps(flagged_data, indent=2, default=str)[:2000]}
+Top 5 Flagged Transactions:
+{json.dumps(flagged_list, indent=2, default=str)[:1000]}
 
-Top Spending Categories (via MCP run_analytics):
-{json.dumps(kpi_data, indent=2, default=str)}
+Top 5 Spending Categories:
+{json.dumps(top_cats, indent=2, default=str)[:500]}
 
-Risk Summary (via MCP run_analytics):
-{json.dumps(risk_data, indent=2, default=str)}
+Risk Summary:
+{json.dumps(risk_data, indent=2, default=str)[:300]}
 """
 
     messages = [
