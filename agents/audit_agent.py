@@ -12,6 +12,16 @@ load_dotenv()
 
 def call_mcp_audit_tool(tool_name: str, arguments: dict) -> dict:
     """Call the log_audit MCP server."""
+    # ── Cloud environment detection ───────────────────────────────────────────
+    is_cloud = (
+        os.getenv("HOME", "").startswith("/home/adminuser") or
+        os.getenv("STREAMLIT_SHARING_MODE") is not None or
+        not os.path.exists("mcp_servers/log_audit.py")
+    )
+    if is_cloud:
+        logger.info(f"Cloud environment — using direct Supabase fallback for {tool_name}")
+        return _fallback_audit(tool_name, arguments)
+
     import asyncio
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client
@@ -82,7 +92,6 @@ def audit_agent_node(state) -> dict:
 
     logger.info(f"\n📝 Audit Agent logging via MCP: {run_id[:8]}...")
 
-    # Log each agent decision via MCP
     audit_entries = [
         {
             "agent_name": "supervisor",
@@ -122,7 +131,6 @@ def audit_agent_node(state) -> dict:
         }
     ]
 
-    # Log each entry via MCP
     for entry in audit_entries:
         result = call_mcp_audit_tool("log_agent_decision", {
             "run_id": run_id,
@@ -130,7 +138,6 @@ def audit_agent_node(state) -> dict:
         })
         logger.info(f"   Logged via MCP: {entry['agent_name']}")
 
-    # Write run metrics directly (metrics are observability, not agent decisions)
     run_metrics = {
         "run_id": run_id,
         "total_tokens": len(state.get("messages", [])) * 500,
