@@ -57,55 +57,56 @@ It was built end-to-end as a portfolio project targeting AI Systems Engineer and
 
 ## Architecture
 
-DATA SOURCES
-    Bank Statements (PDF) · Invoices (PDF) · Transaction CSVs
-                              │
-                              ▼
-                ┌─────────────────────────┐
-                │   n8n AUTOMATION LAYER   │
-                │  Schedule → Pipeline →   │
-                │  Risk-based routing      │
-                └────────────┬────────────┘
-                              │
-                              ▼
-          ┌───────────────────────────────────┐
-          │      MEDALLION DATA PIPELINE        │
-          │  Bronze (raw) → Silver (cleaned) →  │
-          │      Gold (KPI aggregations)        │
-          │         Supabase PostgreSQL          │
-          └───────────────────┬───────────────┘
-                              │
-                              ▼
-          ┌───────────────────────────────────┐
-          │        IDP EXTRACTION PIPELINE       │
-          │  Tesseract OCR → Groq/Llama 3.3 70B  │
-          │   → Pydantic validation → Qdrant     │
-          └───────────────────┬───────────────┘
-                              │
-                              ▼
-          ┌───────────────────────────────────┐
-          │     4 CUSTOM MCP TOOL SERVERS        │
-          │  query_transactions · run_analytics  │
-          │  retrieve_documents · log_audit      │
-          └───────────────────┬───────────────┘
-                              │
-                              ▼
-          ┌───────────────────────────────────┐
-          │   LANGGRAPH MULTI-AGENT SYSTEM       │
-          │  Supervisor → Extraction → Analysis  │
-          │      → Decision → Audit              │
-          │      (LangSmith traced)              │
-          └───────────────────┬───────────────┘
-                              │
-                   ┌──────────┴──────────┐
-                   ▼                     ▼
-          ┌─────────────────┐   ┌─────────────────┐
-          │  HITL INTERRUPT  │   │  STREAMLIT UI    │
-          │  Review Queue    │   │  Query/Upload/   │
-          │  Approve/Reject  │   │  SQL Search       │
-          └─────────────────┘   │  + PDF Reports    │
-                                └─────────────────┘
-
+```text
+                          DATA SOURCES
+        Bank Statements (PDF) · Invoices (PDF) · Transaction CSVs
+                                  │
+                                  ▼
+                    ┌─────────────────────────┐
+                    │   n8n AUTOMATION LAYER   │
+                    │  Schedule → Pipeline →   │
+                    │  Risk-based routing      │
+                    └────────────┬────────────┘
+                                  │
+                                  ▼
+              ┌───────────────────────────────────┐
+              │      MEDALLION DATA PIPELINE        │
+              │  Bronze (raw) → Silver (cleaned) →  │
+              │      Gold (KPI aggregations)        │
+              │         Supabase PostgreSQL          │
+              └───────────────────┬───────────────┘
+                                  │
+                                  ▼
+              ┌───────────────────────────────────┐
+              │        IDP EXTRACTION PIPELINE       │
+              │  Tesseract OCR → Groq/Llama 3.3 70B  │
+              │   → Pydantic validation → Qdrant     │
+              └───────────────────┬───────────────┘
+                                  │
+                                  ▼
+              ┌───────────────────────────────────┐
+              │     4 CUSTOM MCP TOOL SERVERS        │
+              │  query_transactions · run_analytics  │
+              │  retrieve_documents · log_audit      │
+              └───────────────────┬───────────────┘
+                                  │
+                                  ▼
+              ┌───────────────────────────────────┐
+              │   LANGGRAPH MULTI-AGENT SYSTEM       │
+              │  Supervisor → Extraction → Analysis  │
+              │      → Decision → Audit              │
+              │      (LangSmith traced)              │
+              └───────────────────┬───────────────┘
+                                  │
+                       ┌──────────┴──────────┐
+                       ▼                     ▼
+              ┌─────────────────┐   ┌─────────────────┐
+              │  HITL INTERRUPT  │   │  STREAMLIT UI    │
+              │  Review Queue    │   │  Query/Upload/   │
+              │  Approve/Reject  │   │  SQL Search       │
+              └─────────────────┘   │  + PDF Reports    │
+                                    └─────────────────┘
+```
                                 ## Core capabilities
 
 **Multi-agent risk analysis** — A 5-agent LangGraph system (Supervisor, Extraction, Analysis, Decision, Audit) processes natural language queries against the transaction database, producing a risk rating, executive summary, and prioritised recommended actions for every run.
@@ -142,20 +143,7 @@ DATA SOURCES
 | Reporting | ReportLab, Power BI |
 | Testing | pytest (35 tests) |
 
-## Project structure
 
-finsight-enterprise-ai/
-├── ingestion/            Synthetic data generator, n8n workflow exports
-├── pipeline/             Bronze → Silver → Gold data pipeline
-├── extraction/           OCR, LLM extraction, Qdrant embeddings
-├── mcp_servers/          4 custom MCP tool servers
-├── agents/               LangGraph 5-agent system, SQL agent, comparison agent
-├── hitl/                 Human-in-the-loop interrupt and review logic
-├── llmops/               Cost tracking, evaluation, PDF report generation
-├── output/               Streamlit application, screenshots, Power BI dashboard
-├── database/             Supabase schema
-├── tests/                35 unit tests
-└── config/               Environment and connection testing
 
 ## Running locally
 
