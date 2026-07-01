@@ -252,5 +252,3 @@ Risk Summary:
         "extracted_data": full_extracted,
         "messages": state["messages"] + [response]
     }
-
-    
