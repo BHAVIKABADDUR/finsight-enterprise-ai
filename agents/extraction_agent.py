@@ -24,18 +24,20 @@ def get_llm():
 def call_mcp_tool(server_module: str, tool_name: str, arguments: dict) -> dict:
     """
     Call an MCP tool server and return the result.
-    
-    This runs the MCP server as a subprocess and communicates
-    via stdin/stdout — exactly how MCP protocol works.
-    
-    Args:
-        server_module: Python module path e.g. 'mcp_servers.query_transactions'
-        tool_name: Name of the tool to call
-        arguments: Tool arguments as dict
-        
-    Returns:
-        Tool result as dict
+    On Streamlit Cloud, MCP subprocess calls are not supported —
+    falls back to direct Supabase queries automatically.
     """
+    # ── Cloud environment detection ───────────────────────────────────────────
+    # Streamlit Cloud runs as /home/adminuser — MCP subprocesses not supported
+    is_cloud = (
+        os.getenv("HOME", "").startswith("/home/adminuser") or
+        os.getenv("STREAMLIT_SHARING_MODE") is not None or
+        not os.path.exists("mcp_servers/query_transactions.py")
+    )
+    if is_cloud:
+        logger.info(f"Cloud environment — using direct Supabase fallback for {tool_name}")
+        return _fallback_query(tool_name, arguments)
+
     import asyncio
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client
@@ -59,7 +61,6 @@ def call_mcp_tool(server_module: str, tool_name: str, arguments: dict) -> dict:
         return asyncio.run(_call())
     except Exception as e:
         logger.error(f"MCP tool call failed: {server_module}.{tool_name} — {e}")
-        # Fallback to direct Supabase query
         return _fallback_query(tool_name, arguments)
 
 def _fallback_query(tool_name: str, arguments: dict) -> dict:
@@ -142,8 +143,6 @@ def extraction_agent_node(state):
 
     logger.info(f"\n📊 Extraction Agent running via MCP tools (intent: {intent})")
 
-    # ── Call MCP tools ────────────────────────────────────────────────────────
-
     # Tool 1: Get transaction summary
     logger.info("   Calling MCP: get_transaction_summary")
     summary_data = call_mcp_tool(
@@ -218,7 +217,6 @@ Risk Summary (via MCP run_analytics):
 
     logger.info(f"   Found: {extraction_result.get('data_summary', '')[:80]}")
 
-    # Merge all MCP data
     full_extracted = {
         **state.get("extracted_data", {}),
         "transactions": {
