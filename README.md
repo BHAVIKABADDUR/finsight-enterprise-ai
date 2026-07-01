@@ -16,18 +16,103 @@
 
 FinSight ingests financial documents — bank statements, invoices, transaction exports — and runs them through a complete AI pipeline: OCR extraction, LLM-based structuring, a 5-agent LangGraph orchestration system that analyses risk and anomalies, custom MCP tool servers that mediate every database interaction, an n8n automation layer, and a full governance trail with human-in-the-loop approval for high-risk decisions.
 
-It was built end-to-end over several days as a portfolio project targeting AI Systems Engineer and Data Engineer roles in the UAE market, with every component chosen to mirror what real enterprise AI teams in banking are building right now — not a toy demo, a working system with 387 synthetic transactions across 3 business entities, full observability, and 35 passing tests.
+It was built end-to-end as a portfolio project targeting AI Systems Engineer and Data Engineer roles in the UAE market, with every component chosen to mirror what real enterprise AI teams in banking are building right now — not a toy demo, a working system with 387 synthetic transactions across 3 business entities, full observability, and 35 passing tests.
 
 ## Live demo
 
 | | |
 |---|---|
-| **App** | *[add your Streamlit Cloud link here after deployment]* |
+| **App** |  https://finsight-enterprise-ai-t72tgheqs9g6kaudwzdxek.streamlit.app/ |* |
 | **Demo video** | *[add your 90-second walkthrough link here]* |
 | **Repo** | https://github.com/BHAVIKABADDUR/finsight-enterprise-ai |
 
 ## Architecture
+DATA SOURCES
+    Bank Statements (PDF) · Invoices (PDF) · Transaction CSVs
+                              │
+                              ▼
+                ┌─────────────────────────┐
+                │   n8n AUTOMATION LAYER   │
+                │  Schedule → Pipeline →   │
+                │  Risk-based routing      │
+                └────────────┬────────────┘
+                              │
+                              ▼
+          ┌───────────────────────────────────┐
+          │      MEDALLION DATA PIPELINE        │
+          │  Bronze (raw) → Silver (cleaned) →  │
+          │      Gold (KPI aggregations)        │
+          │         Supabase PostgreSQL          │
+          └───────────────────┬───────────────┘
+                              │
+                              ▼
+          ┌───────────────────────────────────┐
+          │        IDP EXTRACTION PIPELINE       │
+          │  Tesseract OCR → Groq/Llama 3.3 70B  │
+          │   → Pydantic validation → Qdrant     │
+          └───────────────────┬───────────────┘
+                              │
+                              ▼
+          ┌───────────────────────────────────┐
+          │     4 CUSTOM MCP TOOL SERVERS        │
+          │  query_transactions · run_analytics  │
+          │  retrieve_documents · log_audit      │
+          └───────────────────┬───────────────┘
+                              │
+                              ▼
+          ┌───────────────────────────────────┐
+          │   LANGGRAPH MULTI-AGENT SYSTEM       │
+          │  Supervisor → Extraction → Analysis  │
+          │      → Decision → Audit              │
+          │      (LangSmith traced)              │
+          └───────────────────┬───────────────┘
+                              │
+                   ┌──────────┴──────────┐
+                   ▼                     ▼
+          ┌─────────────────┐   ┌─────────────────┐
+          │  HITL INTERRUPT  │   │  STREAMLIT UI    │
+          │  Review Queue    │   │  Query/Upload/   │
+          │  Approve/Reject  │   │  SQL Search       │
+          └─────────────────┘   │  + PDF Reports    │
+                                └─────────────────┘
 
+    ## Core capabilities
+
+**Multi-agent risk analysis** — A 5-agent LangGraph system (Supervisor, Extraction, Analysis, Decision, Audit) processes natural language queries against the transaction database, producing a risk rating, executive summary, and prioritised recommended actions for every run.
+
+**Document intelligence (IDP)** — Upload a bank statement or invoice PDF directly in the UI. The system runs Tesseract OCR, extracts structured fields via Groq/Llama 3.3 70B, validates the output with Pydantic, and immediately routes it through agent analysis — live, in the browser.
+
+**Custom MCP tool servers** — Four Model Context Protocol servers (`query_transactions`, `run_analytics`, `retrieve_documents`, `log_audit`) mediate every database interaction. Agents never query Supabase directly; they call MCP tools, with automatic fallback if a server is unavailable.
+
+**Natural language SQL** — Plain English questions ("show me all transactions over AED 10,000") are converted into safe, whitelisted database filters — never raw SQL — by a dedicated text-to-query agent.
+
+**Multi-period trend comparison** — A comparison agent analyses spending and risk trajectory across all 6 months of data, identifying category shifts and producing month-over-month percentage changes.
+
+**Human-in-the-loop governance** — High-risk decisions (HIGH risk rating, transactions over AED 50,000, or 3+ flagged items) trigger a HITL interrupt, routing the item to a review queue where a human must approve or reject before the system considers the case resolved.
+
+**Full observability** — Every agent run is traced in LangSmith, every decision is logged to an immutable audit trail in Supabase, and token cost/latency is tracked per run on a dedicated System Health dashboard.
+
+**Automated reporting** — One-click PDF report generation produces a professional, branded risk report — executive summary, key metrics, recommended actions, and a detailed flagged-transactions table — ready to hand to a stakeholder.
+
+**n8n orchestration** — A published n8n workflow automates the full Bronze → Silver → Gold → Agent Analysis pipeline on a schedule, with conditional routing to a high-risk alert path.
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Orchestration | LangGraph, Model Context Protocol (MCP) |
+| Automation | n8n |
+| LLM | Groq (Llama 3.3 70B) |
+| Database | Supabase (PostgreSQL + Storage) |
+| Vector search | Qdrant |
+| Data pipeline | PySpark, pandas, Medallion architecture |
+| Document extraction | Tesseract OCR, pdf2image, Pydantic |
+| Observability | LangSmith, custom LLMOps dashboard |
+| Frontend | Streamlit |
+| Reporting | ReportLab |
+| Testing | pytest (35 tests) |
+
+## Project structure
 finsight-enterprise-ai/
 ├── ingestion/            Synthetic data generator, n8n workflow exports
 ├── pipeline/              Bronze → Silver → Gold data pipeline
