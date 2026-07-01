@@ -22,11 +22,41 @@ It was built end-to-end as a portfolio project targeting AI Systems Engineer and
 
 | | |
 |---|---|
-| **App** |  https://finsight-enterprise-ai-t72tgheqs9g6kaudwzdxek.streamlit.app/ |* |
+| **App** | https://finsight-enterprise-ai-t72tgheqs9g6kaudwzdxek.streamlit.app/ |
+| **Power BI Dashboard** | `output/powerbi/finsight_dashboard.pbix` — 3-page dashboard connected to live Gold layer data |
 | **Demo video** | *[add your 90-second walkthrough link here]* |
 | **Repo** | https://github.com/BHAVIKABADDUR/finsight-enterprise-ai |
 
+## Screenshots
+
+### Streamlit Application
+
+**Analysis — Multi-Agent Risk Assessment**
+![Streamlit Analysis](output/screenshots/streamlit_analysis.png)
+
+**Financial Intelligence Dashboard**
+![Streamlit Dashboard](output/screenshots/streamlit_dashboard.png)
+
+**Human Review Queue**
+![Review Queue](output/screenshots/streamlit_review_queue.png)
+
+---
+
+### Power BI Dashboard
+
+**Executive Overview — KPIs, Spend by Category, Flagged Summary**
+![Power BI Executive Overview](output/screenshots/powerbi_executive_overview.png)
+
+**Risk & Governance — Monthly Trends, Flagged Detail**
+![Power BI Risk & Governance](output/screenshots/powerbi_risk_governance.png)
+
+**Transaction Explorer — Full Ledger with Credit/Debit Split**
+![Power BI Transaction Explorer](output/screenshots/powerbi_transaction_explorer.png)
+
+---
+
 ## Architecture
+
 DATA SOURCES
     Bank Statements (PDF) · Invoices (PDF) · Transaction CSVs
                               │
@@ -76,7 +106,7 @@ DATA SOURCES
           └─────────────────┘   │  + PDF Reports    │
                                 └─────────────────┘
 
-    ## Core capabilities
+                                ## Core capabilities
 
 **Multi-agent risk analysis** — A 5-agent LangGraph system (Supervisor, Extraction, Analysis, Decision, Audit) processes natural language queries against the transaction database, producing a risk rating, executive summary, and prioritised recommended actions for every run.
 
@@ -109,22 +139,23 @@ DATA SOURCES
 | Document extraction | Tesseract OCR, pdf2image, Pydantic |
 | Observability | LangSmith, custom LLMOps dashboard |
 | Frontend | Streamlit |
-| Reporting | ReportLab |
+| Reporting | ReportLab, Power BI |
 | Testing | pytest (35 tests) |
 
 ## Project structure
+
 finsight-enterprise-ai/
 ├── ingestion/            Synthetic data generator, n8n workflow exports
-├── pipeline/              Bronze → Silver → Gold data pipeline
-├── extraction/            OCR, LLM extraction, Qdrant embeddings
-├── mcp_servers/           4 custom MCP tool servers
-├── agents/                LangGraph 5-agent system, SQL agent, comparison agent
-├── hitl/                  Human-in-the-loop interrupt and review logic
-├── llmops/                Cost tracking, evaluation, PDF report generation
-├── output/                Streamlit application
-├── database/              Supabase schema
-├── tests/                 35 unit tests
-└── config/                Environment and connection testing
+├── pipeline/             Bronze → Silver → Gold data pipeline
+├── extraction/           OCR, LLM extraction, Qdrant embeddings
+├── mcp_servers/          4 custom MCP tool servers
+├── agents/               LangGraph 5-agent system, SQL agent, comparison agent
+├── hitl/                 Human-in-the-loop interrupt and review logic
+├── llmops/               Cost tracking, evaluation, PDF report generation
+├── output/               Streamlit application, screenshots, Power BI dashboard
+├── database/             Supabase schema
+├── tests/                35 unit tests
+└── config/               Environment and connection testing
 
 ## Running locally
 
@@ -163,7 +194,7 @@ All data in this project is synthetic, generated specifically for this system wi
 ## Author
 
 Bhavika Baddur — Computer Science graduate, AI & Data Engineering background.
-[LinkedIn](#) · [GitHub](https://github.com/BHAVIKABADDUR)
+[LinkedIn](https://www.linkedin.com/in/bhavika-baddur/) · [GitHub](https://github.com/BHAVIKABADDUR)
 
 ---
 
