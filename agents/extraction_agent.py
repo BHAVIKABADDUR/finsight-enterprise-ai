@@ -20,7 +20,7 @@ def get_llm():
         except Exception:
             pass
     return ChatGroq(
-        model="compound-beta",
+        model="groq/compound",
         api_key=api_key,
         temperature=0
     )
@@ -164,10 +164,10 @@ Transaction Summary:
 - Flagged: {summary_data.get('flagged_count', 0)}
 
 Top Flagged Transactions (5):
-{json.dumps(flagged_list, default=str)[:200]}
+{json.dumps(flagged_list, default=str)[:100]}
 
 Top Spending Categories (5):
-{json.dumps(top_cats, default=str)[:150]}
+{json.dumps(top_cats, default=str)[:100]}
 
 Risk Summary:
 {json.dumps(risk_data, default=str)[:300]}"""

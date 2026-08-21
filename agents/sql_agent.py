@@ -1,4 +1,4 @@
-# agents/sql_agent.py
+﻿# agents/sql_agent.py
 # Natural Language to SQL Agent
 # Converts plain English questions into safe, read-only Supabase queries
 
@@ -87,7 +87,7 @@ def natural_language_to_filter(question: str) -> dict:
     logger.info(f"Converting to SQL filter: {question}")
 
     response = client.chat.completions.create(
-        model="compound-beta",
+        model="groq/compound",
         messages=[
             {"role": "system", "content": SQL_AGENT_PROMPT},
             {"role": "user", "content": question}

@@ -1,4 +1,4 @@
-# agents/comparison_agent.py
+﻿# agents/comparison_agent.py
 # Multi-document comparison agent
 # Compares trends across multiple time periods / documents
 
@@ -124,7 +124,7 @@ Monthly Category Breakdown:
 """
 
     response = client.chat.completions.create(
-        model="compound-beta",
+        model="groq/compound",
         messages=[
             {"role": "system", "content": COMPARISON_PROMPT},
             {"role": "user", "content": context}

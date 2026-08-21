@@ -26,7 +26,7 @@ def get_llm():
         except Exception:
             pass
     return ChatGroq(
-        model="compound-beta",
+        model="groq/compound",
         api_key=api_key,
         temperature=0
     )

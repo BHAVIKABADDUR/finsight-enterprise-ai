@@ -1,4 +1,4 @@
-# agents/state.py
+﻿# agents/state.py
 # Defines the shared state that flows through the entire agent graph
 # Every agent reads from and writes to this state
 

@@ -1,4 +1,4 @@
-# agents/audit_agent.py
+﻿# agents/audit_agent.py
 # Audit Agent — logs all decisions via MCP log_audit server
 # Correct pattern: agents use MCP tools, never direct DB calls
 
