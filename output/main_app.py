@@ -23,7 +23,7 @@ load_dotenv()
 
 st.set_page_config(
     page_title="FinSight Enterprise AI",
-    page_icon="??",
+    page_icon="bank",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -347,11 +347,11 @@ code {
 def risk_stamp(level: str) -> str:
     level = (level or "unknown").lower()
     cls = "medium"
-    icon = "?"
+    icon = "●"
     if level == "high":
-        cls, icon = "high", "?"
+        cls, icon = "high", "▲"
     elif level == "low":
-        cls, icon = "low", "?"
+        cls, icon = "low", "✓"
     return f'<span class="risk-stamp {cls}">{icon} {level.upper()} RISK</span>'
 
 def status_chip(label: str, kind: str = "neutral") -> str:
@@ -393,7 +393,7 @@ st.sidebar.divider()
 
 page = st.sidebar.radio(
     "NAVIGATION",
-    ["?? Analysis", "?? Dashboard", "?? Trend Comparison", "?? Review Queue", "?? Audit Log", "?? System Health"],
+    ["Analysis", "Dashboard", "Trend Comparison", "Review Queue", "Audit Log", "System Health"],
     label_visibility="visible"
 )
 
@@ -410,7 +410,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-if page == "?? Analysis":
+if page == "Analysis":
     st.markdown('<div class="page-kicker">Multi-Agent Intelligence</div>', unsafe_allow_html=True)
     st.title("FinSight Enterprise AI")
     st.markdown('<div class="page-subtitle">Financial document analysis powered by a 5-agent LangGraph orchestration system</div>', unsafe_allow_html=True)
@@ -770,7 +770,7 @@ if page == "?? Analysis":
                         st.error(f"Search failed: {str(e)}")
                         st.exception(e)
 
-elif page == "?? Dashboard":
+elif page == "Dashboard":
     st.markdown('<div class="page-kicker">Gold Layer</div>', unsafe_allow_html=True)
     st.title("Financial Intelligence Dashboard")
     st.markdown('<div class="page-subtitle">KPIs updated after every pipeline run</div>', unsafe_allow_html=True)
@@ -868,7 +868,7 @@ elif page == "?? Dashboard":
     except Exception as e:
         st.error(f"Error loading flagged summary: {e}")
 
-elif page == "?? Trend Comparison":
+elif page == "Trend Comparison":
     st.markdown('<div class="page-kicker">Multi-Period Analysis</div>', unsafe_allow_html=True)
     st.title("Trend Comparison")
     st.markdown('<div class="page-subtitle">AI-powered comparison of spending patterns and risk trajectory across months</div>', unsafe_allow_html=True)
@@ -972,7 +972,7 @@ elif page == "?? Trend Comparison":
                 st.error(f"Comparison failed: {str(e)}")
                 st.exception(e)
 
-elif page == "?? Review Queue":
+elif page == "Review Queue":
     st.markdown('<div class="page-kicker">Human-in-the-Loop</div>', unsafe_allow_html=True)
     st.title("Review Queue")
     st.markdown('<div class="page-subtitle">Flagged transactions requiring human approval</div>', unsafe_allow_html=True)
@@ -1051,7 +1051,7 @@ elif page == "?? Review Queue":
     except Exception as e:
         st.error(f"Error loading review queue: {e}")
 
-elif page == "?? Audit Log":
+elif page == "Audit Log":
     st.markdown('<div class="page-kicker">Governance Trail</div>', unsafe_allow_html=True)
     st.title("Audit Log")
     st.markdown('<div class="page-subtitle">Complete record of every agent decision</div>', unsafe_allow_html=True)
@@ -1111,7 +1111,7 @@ elif page == "?? Audit Log":
     except Exception as e:
         st.error(f"Error loading audit log: {e}")
 
-elif page == "?? System Health":
+elif page == "System Health":
     st.markdown('<div class="page-kicker">LLMOps Observability</div>', unsafe_allow_html=True)
     st.title("System Health")
     st.markdown('<div class="page-subtitle">Tokens, costs and agent performance across every run</div>', unsafe_allow_html=True)
@@ -1200,4 +1200,3 @@ elif page == "?? System Health":
         st.exception(e)
 
 render_footer()
-
