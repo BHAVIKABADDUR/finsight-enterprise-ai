@@ -14,7 +14,7 @@ load_dotenv()
 # ── Groq pricing (per 1M tokens) ─────────────────────────────────────────────
 # As of June 2026 — free tier has no cost but we track usage
 GROQ_PRICING = {
-    "llama-3.3-70b-versatile": {
+    "compound-beta": {
         "input": 0.59,   # USD per 1M input tokens
         "output": 0.79   # USD per 1M output tokens
     }
@@ -43,7 +43,7 @@ def update_run_metrics(
     input_tokens: int,
     output_tokens: int,
     latency_ms: int,
-    model: str = "llama-3.3-70b-versatile"
+    model: str = "compound-beta"
 ):
     """
     Update run metrics for a specific agent call.

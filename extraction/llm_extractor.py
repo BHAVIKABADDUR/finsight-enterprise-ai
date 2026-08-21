@@ -145,7 +145,7 @@ def extract_with_llm(
     start_time = datetime.utcnow()
     
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="compound-beta",
         messages=[
             {"role": "system", "content": prompt},
             {"role": "user", "content": f"Extract from this document:\n\n{ocr_text}"}
@@ -183,7 +183,7 @@ def extract_with_llm(
         "extracted_fields": extracted,
         "extraction_time_ms": extraction_time_ms,
         "tokens_used": tokens_used,
-        "model_used": "llama-3.3-70b-versatile"
+        "model_used": "compound-beta"
     }
 
 # ── Validate with Pydantic ────────────────────────────────────────────────────

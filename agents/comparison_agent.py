@@ -124,7 +124,7 @@ Monthly Category Breakdown:
 """
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="compound-beta",
         messages=[
             {"role": "system", "content": COMPARISON_PROMPT},
             {"role": "user", "content": context}

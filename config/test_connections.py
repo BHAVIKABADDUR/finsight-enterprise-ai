@@ -7,7 +7,7 @@ def test_groq():
     from groq import Groq
     client = Groq(api_key=os.getenv("GROQ_API_KEY"))
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="compound-beta",
         messages=[{"role": "user", "content": "Say hello in one word"}]
     )
     print(f"✅ Groq working: {response.choices[0].message.content}")
