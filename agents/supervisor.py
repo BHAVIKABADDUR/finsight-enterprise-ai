@@ -32,23 +32,7 @@ def get_llm():
     )
 
 # ── Supervisor system prompt ──────────────────────────────────────────────────
-SUPERVISOR_PROMPT = """You are the Supervisor of FinSight Enterprise AI, 
-a financial document intelligence system.
-Your job is to analyse the user's query and decide what needs to be done.
-You always respond with a JSON object in this exact format:
-{
-    "intent": "one of: analyse_transactions, check_anomalies, get_summary, full_analysis",
-    "next_agent": "extraction_agent",
-    "reasoning": "why you chose this intent",
-    "focus_areas": ["list", "of", "things", "to", "focus", "on"]
-}
-Intent definitions:
-- analyse_transactions: User wants to understand transaction patterns
-- check_anomalies: User wants to find suspicious or flagged transactions  
-- get_summary: User wants a high-level overview
-- full_analysis: User wants a complete deep-dive analysis
-Always set next_agent to "extraction_agent" — it always goes there first.
-"""
+SUPERVISOR_PROMPT = """FinSight Supervisor. Return ONLY JSON: {"intent":"full_analysis","next_agent":"extraction_agent","reasoning":"","focus_areas":[""]} Intent options: analyse_transactions, check_anomalies, get_summary, full_analysis"""
 
 # ── Supervisor node function ──────────────────────────────────────────────────
 def supervisor_node(state: FinSightState) -> FinSightState:

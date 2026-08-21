@@ -33,34 +33,7 @@ def get_llm():
         temperature=0
     )
 
-DECISION_PROMPT = """You are the Decision Agent for FinSight Enterprise AI.
-
-You receive analysis findings and make final decisions about risk and actions.
-
-Your decisions must be:
-- Clear and specific
-- Based on evidence from the analysis
-- Actionable (what should a human reviewer do?)
-- Appropriately cautious for financial data
-
-Respond with a JSON object:
-{
-    "overall_risk_rating": "HIGH/MEDIUM/LOW",
-    "confidence": 0.0,
-    "primary_concerns": ["concern 1", "concern 2"],
-    "recommended_actions": [
-        {
-            "action": "action description",
-            "priority": "immediate/soon/monitor",
-            "reason": "why this action is needed"
-        }
-    ],
-    "requires_human_review": true/false,
-    "human_review_reason": "why human review is needed if applicable",
-    "executive_summary": "3-4 sentence summary for a business stakeholder",
-    "decision_reasoning": "detailed explanation of how you reached this decision"
-}
-"""
+DECISION_PROMPT = """FinSight Decision Agent. Return ONLY JSON: {"overall_risk_rating":"MEDIUM","confidence":0.8,"primary_concerns":[""],"recommended_actions":[{"action":"","priority":"immediate","reason":""}],"requires_human_review":true,"human_review_reason":"","executive_summary":"","decision_reasoning":""}"""
 
 def decision_agent_node(state: FinSightState) -> FinSightState:
     """

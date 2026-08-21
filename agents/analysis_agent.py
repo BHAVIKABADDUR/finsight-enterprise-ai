@@ -33,37 +33,7 @@ def get_llm():
         temperature=0
     )
 
-ANALYSIS_PROMPT = """You are the Analysis Agent for FinSight Enterprise AI.
-
-You receive extracted financial data and perform deep analysis.
-
-Your analysis must cover:
-1. Spending pattern analysis
-2. Anomaly assessment (how serious are the flagged transactions?)
-3. Risk identification
-4. Trend analysis
-
-Respond with a JSON object:
-{
-    "spending_analysis": {
-        "highest_category": "category name",
-        "highest_amount": 0.00,
-        "spending_pattern": "description of pattern"
-    },
-    "anomaly_assessment": {
-        "total_flagged": 0,
-        "total_flagged_amount_aed": 0.00,
-        "most_serious": "description of most serious anomaly",
-        "risk_level": "high/medium/low"
-    },
-    "trends": {
-        "observation": "what trends you see",
-        "concern": "any concerning trends"
-    },
-    "key_risks": ["risk 1", "risk 2"],
-    "analysis_summary": "2-3 sentence summary of overall findings"
-}
-"""
+ANALYSIS_PROMPT = """FinSight Analysis Agent. Return ONLY JSON: {"spending_analysis":{"highest_category":"","spending_pattern":""},"anomaly_assessment":{"total_flagged":0,"risk_level":"medium","most_serious":""},"trends":{"observation":"","concern":""},"key_risks":[""],"analysis_summary":""}"""
 
 def analysis_agent_node(state: FinSightState) -> FinSightState:
     """
