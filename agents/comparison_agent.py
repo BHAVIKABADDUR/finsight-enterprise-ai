@@ -124,7 +124,7 @@ Monthly Category Breakdown:
 """
 
     response = client.chat.completions.create(
-        model="groq/compound",
+        model="groq/compound-mini",
         messages=[
             {"role": "system", "content": COMPARISON_PROMPT},
             {"role": "user", "content": context}

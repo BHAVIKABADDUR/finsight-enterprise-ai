@@ -1,4 +1,4 @@
-# agents/analysis_agent.py
+﻿# agents/analysis_agent.py
 # Analyses patterns, anomalies and trends in extracted data
 # Produces structured findings for the Decision Agent
 

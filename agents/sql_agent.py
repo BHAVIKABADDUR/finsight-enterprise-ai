@@ -87,7 +87,7 @@ def natural_language_to_filter(question: str) -> dict:
     logger.info(f"Converting to SQL filter: {question}")
 
     response = client.chat.completions.create(
-        model="groq/compound",
+        model="groq/compound-mini",
         messages=[
             {"role": "system", "content": SQL_AGENT_PROMPT},
             {"role": "user", "content": question}
