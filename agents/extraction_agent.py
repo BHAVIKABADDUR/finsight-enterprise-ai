@@ -1,4 +1,4 @@
-# agents/extraction_agent.py
+﻿# agents/extraction_agent.py
 # Extraction Agent — pulls data using MCP tool servers
 # This is the correct pattern — agents never query databases directly
 
@@ -164,10 +164,10 @@ Transaction Summary:
 - Flagged: {summary_data.get('flagged_count', 0)}
 
 Top Flagged Transactions (5):
-{json.dumps(flagged_list, default=str)[:800]}
+{json.dumps(flagged_list, default=str)[:200]}
 
 Top Spending Categories (5):
-{json.dumps(top_cats, default=str)[:400]}
+{json.dumps(top_cats, default=str)[:150]}
 
 Risk Summary:
 {json.dumps(risk_data, default=str)[:300]}"""
