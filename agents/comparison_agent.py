@@ -124,7 +124,7 @@ Monthly Category Breakdown:
 """
 
     response = client.chat.completions.create(
-        model="allam-2-7b",
+        model="qwen/qwen3.6-27b",
         messages=[
             {"role": "system", "content": COMPARISON_PROMPT},
             {"role": "user", "content": context}

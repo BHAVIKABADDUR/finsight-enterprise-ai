@@ -87,7 +87,7 @@ def natural_language_to_filter(question: str) -> dict:
     logger.info(f"Converting to SQL filter: {question}")
 
     response = client.chat.completions.create(
-        model="allam-2-7b",
+        model="qwen/qwen3.6-27b",
         messages=[
             {"role": "system", "content": SQL_AGENT_PROMPT},
             {"role": "user", "content": question}
