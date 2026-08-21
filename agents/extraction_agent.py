@@ -20,7 +20,7 @@ def get_llm():
         except Exception:
             pass
     return ChatGroq(
-        model="openai/gpt-oss-20b",
+        model="allam-2-7b",
         api_key=api_key,
         temperature=0
     )

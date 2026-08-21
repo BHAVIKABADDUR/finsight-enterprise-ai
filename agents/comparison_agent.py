@@ -124,7 +124,7 @@ Monthly Category Breakdown:
 """
 
     response = client.chat.completions.create(
-        model="openai/gpt-oss-20b",
+        model="allam-2-7b",
         messages=[
             {"role": "system", "content": COMPARISON_PROMPT},
             {"role": "user", "content": context}
