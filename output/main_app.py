@@ -1,5 +1,5 @@
-# output/main_app.py
-# FinSight Enterprise AI — Streamlit Frontend
+ï»¿# output/main_app.py
+# FinSight Enterprise AI ï¿½ Streamlit Frontend
 # Run with: streamlit run output/main_app.py
 
 import sys
@@ -355,7 +355,7 @@ def risk_stamp(level: str) -> str:
     return f'<span class="risk-stamp {cls}">{icon} {level.upper()} RISK</span>'
 
 def status_chip(label: str, kind: str = "neutral") -> str:
-    """Render a small status chip — used for system health and pipeline status."""
+    """Render a small status chip ï¿½ used for system health and pipeline status."""
     return f'<span class="status-chip {kind}">{label}</span>'
 
 
@@ -370,10 +370,10 @@ def empty_state(title: str, body: str) -> str:
 
 
 def render_footer():
-    """Render the app footer — call once at the bottom of every page."""
+    """Render the app footer ï¿½ call once at the bottom of every page."""
     st.markdown(
         '<div class="app-footer">'
-        'FinSight Enterprise AI · LangGraph · MCP · Supabase · Groq · LLMOps · Build 2026.06'
+        'FinSight Enterprise AI ï¿½ LangGraph ï¿½ MCP ï¿½ Supabase ï¿½ Groq ï¿½ LLMOps ï¿½ Build 2026.06'
         '</div>',
         unsafe_allow_html=True
     )
@@ -386,7 +386,7 @@ def get_supabase():
 
 st.sidebar.markdown(
     '<div class="brand-mark"><span class="dot"></span>FINSIGHT</div>'
-    '<div class="brand-sub">Enterprise AI · Risk Ledger</div>',
+    '<div class="brand-sub">Enterprise AI ï¿½ Risk Ledger</div>',
     unsafe_allow_html=True
 )
 st.sidebar.divider()
@@ -479,21 +479,21 @@ if page == "?? Analysis":
                         for action in actions:
                             priority = action.get("priority", "monitor").upper()
                             if priority == "IMMEDIATE":
-                                st.error(f"**{priority}** — {action.get('action', '')}")
+                                st.error(f"**{priority}** ï¿½ {action.get('action', '')}")
                             elif priority == "SOON":
-                                st.warning(f"**{priority}** — {action.get('action', '')}")
+                                st.warning(f"**{priority}** ï¿½ {action.get('action', '')}")
                             else:
-                                st.info(f"**{priority}** — {action.get('action', '')}")
+                                st.info(f"**{priority}** ï¿½ {action.get('action', '')}")
 
                         st.divider()
 
                         st.markdown('<div class="section-label">Primary Concerns</div>', unsafe_allow_html=True)
                         for concern in decision.get("primary_concerns", []):
-                            st.markdown(f"— {concern}")
+                            st.markdown(f"ï¿½ {concern}")
 
                         if decision.get("requires_human_review"):
                             st.divider()
-                            st.warning(f"**Human review required** — {decision.get('human_review_reason', '')}")
+                            st.warning(f"**Human review required** ï¿½ {decision.get('human_review_reason', '')}")
                             st.caption("Open Review Queue to approve or reject flagged items.")
 
                         st.caption(f"Run ID: {result.get('run_id', 'N/A')}")
@@ -529,7 +529,7 @@ if page == "?? Analysis":
 
     with tab2:
         st.markdown('<div class="section-label">Document Upload</div>', unsafe_allow_html=True)
-        st.markdown("Upload a bank statement or invoice PDF — agents extract and analyse it automatically.")
+        st.markdown("Upload a bank statement or invoice PDF ï¿½ agents extract and analyse it automatically.")
         st.divider()
 
         uploaded_file = st.file_uploader(
@@ -539,7 +539,7 @@ if page == "?? Analysis":
         )
 
         if uploaded_file is not None:
-            st.success(f"File received — {uploaded_file.name} ({uploaded_file.size:,} bytes)")
+            st.success(f"File received ï¿½ {uploaded_file.name} ({uploaded_file.size:,} bytes)")
 
             col1, col2 = st.columns(2)
             with col1:
@@ -550,9 +550,9 @@ if page == "?? Analysis":
                 )
             with col2:
                 st.markdown('<div class="section-label">File Details</div>', unsafe_allow_html=True)
-                st.caption(f"Name — {uploaded_file.name}")
-                st.caption(f"Type — {uploaded_file.type}")
-                st.caption(f"Size — {uploaded_file.size:,} bytes")
+                st.caption(f"Name ï¿½ {uploaded_file.name}")
+                st.caption(f"Type ï¿½ {uploaded_file.type}")
+                st.caption(f"Size ï¿½ {uploaded_file.size:,} bytes")
 
             st.divider()
 
@@ -569,21 +569,21 @@ if page == "?? Analysis":
                             tmp_file.write(uploaded_file.getvalue())
                             tmp_path = tmp_file.name
 
-                        st.info("Step 1/4 — Running OCR extraction")
+                        st.info("Step 1/4 ï¿½ Running OCR extraction")
 
                         if uploaded_file.name.endswith(".pdf"):
                             from extraction.ocr import extract_text_from_pdf
                             ocr_text = extract_text_from_pdf(tmp_path)
-                            st.success(f"OCR complete — {len(ocr_text)} characters extracted")
+                            st.success(f"OCR complete ï¿½ {len(ocr_text)} characters extracted")
                         else:
                             with open(tmp_path, "r", encoding="utf-8") as f:
                                 ocr_text = f.read()
-                            st.success(f"CSV loaded — {len(ocr_text)} characters")
+                            st.success(f"CSV loaded ï¿½ {len(ocr_text)} characters")
 
                         with st.expander("Raw extracted text (first 500 chars)"):
                             st.text(ocr_text[:500])
 
-                        st.info("Step 2/4 — Running LLM extraction")
+                        st.info("Step 2/4 ï¿½ Running LLM extraction")
 
                         from extraction.llm_extractor import extract_with_llm, validate_extraction
                         llm_result = extract_with_llm(ocr_text, doc_type)
@@ -592,7 +592,7 @@ if page == "?? Analysis":
                         )
 
                         st.success(
-                            f"LLM extraction complete — "
+                            f"LLM extraction complete ï¿½ "
                             f"{confidence:.0%} confidence, "
                             f"{llm_result['tokens_used']} tokens, "
                             f"{llm_result['extraction_time_ms']}ms"
@@ -607,12 +607,12 @@ if page == "?? Analysis":
                         with col_a:
                             for key, val in field_items[:mid]:
                                 if val and key != "transactions":
-                                    st.markdown(f"**{key.replace('_', ' ').title()}** — {val}")
+                                    st.markdown(f"**{key.replace('_', ' ').title()}** ï¿½ {val}")
 
                         with col_b:
                             for key, val in field_items[mid:]:
                                 if val and key != "transactions":
-                                    st.markdown(f"**{key.replace('_', ' ').title()}** — {val}")
+                                    st.markdown(f"**{key.replace('_', ' ').title()}** ï¿½ {val}")
 
                         transactions = fields.get("transactions", [])
                         if transactions:
@@ -622,7 +622,7 @@ if page == "?? Analysis":
                             st.dataframe(df_txns, use_container_width=True)
 
                         st.divider()
-                        st.info("Step 3/4 — Running agent analysis")
+                        st.info("Step 3/4 ï¿½ Running agent analysis")
 
                         from agents.graph import run_analysis
                         query = (
@@ -633,7 +633,7 @@ if page == "?? Analysis":
                         result = run_analysis(query)
                         decision = result.get("final_decision", {})
 
-                        st.info("Step 4/4 — Saving results")
+                        st.info("Step 4/4 ï¿½ Saving results")
 
                         import uuid as uuid_lib
                         doc_id = str(uuid_lib.uuid4())
@@ -663,13 +663,13 @@ if page == "?? Analysis":
                         for action in decision.get("recommended_actions", []):
                             priority = action.get("priority", "monitor").upper()
                             if priority == "IMMEDIATE":
-                                st.error(f"**{priority}** — {action.get('action', '')}")
+                                st.error(f"**{priority}** ï¿½ {action.get('action', '')}")
                             elif priority == "SOON":
-                                st.warning(f"**{priority}** — {action.get('action', '')}")
+                                st.warning(f"**{priority}** ï¿½ {action.get('action', '')}")
                             else:
-                                st.info(f"**{priority}** — {action.get('action', '')}")
+                                st.info(f"**{priority}** ï¿½ {action.get('action', '')}")
 
-                        st.caption(f"Document fully processed. Document ID: {doc_id[:8]}…")
+                        st.caption(f"Document fully processed. Document ID: {doc_id[:8]}ï¿½")
 
                         st.divider()
                         if st.button("Export PDF Report", use_container_width=True, key="export_upload_report"):
@@ -702,7 +702,7 @@ if page == "?? Analysis":
 
     with tab3:
         st.markdown('<div class="section-label">Natural Language Transaction Search</div>', unsafe_allow_html=True)
-        st.markdown("Ask questions in plain English — an AI agent converts it into a safe database query.")
+        st.markdown("Ask questions in plain English ï¿½ an AI agent converts it into a safe database query.")
         st.divider()
 
         col1, col2 = st.columns([3, 1])
@@ -737,7 +737,7 @@ if page == "?? Analysis":
 
                         st.success(result['explanation'])
 
-                        with st.expander("Technical details — filters applied"):
+                        with st.expander("Technical details ï¿½ filters applied"):
                             for f in result["applied_filters"]:
                                 st.code(f, language="sql")
 
@@ -944,9 +944,9 @@ elif page == "?? Trend Comparison":
                         except (ValueError, TypeError):
                             change_pct = 0.0
 
-                        with st.expander(f"{p.get('period', '')} — AED {spend:,.2f} ({change_pct:+.1f}%)"):
-                            st.markdown(f"**Change** — {p.get('change_from_previous', 'N/A')}")
-                            st.markdown(f"**Notable** — {p.get('notable_change', '')}")
+                        with st.expander(f"{p.get('period', '')} ï¿½ AED {spend:,.2f} ({change_pct:+.1f}%)"):
+                            st.markdown(f"**Change** ï¿½ {p.get('change_from_previous', 'N/A')}")
+                            st.markdown(f"**Notable** ï¿½ {p.get('notable_change', '')}")
 
                 st.divider()
 
@@ -954,11 +954,11 @@ elif page == "?? Trend Comparison":
                 for shift in comparison.get("category_shifts", []):
                     trend = shift.get("trend", "stable")
                     if trend == "increasing":
-                        st.warning(f"**{shift.get('category', '')}** ? — {shift.get('observation', '')}")
+                        st.warning(f"**{shift.get('category', '')}** ? ï¿½ {shift.get('observation', '')}")
                     elif trend == "decreasing":
-                        st.success(f"**{shift.get('category', '')}** ? — {shift.get('observation', '')}")
+                        st.success(f"**{shift.get('category', '')}** ? ï¿½ {shift.get('observation', '')}")
                     else:
-                        st.info(f"**{shift.get('category', '')}** ? — {shift.get('observation', '')}")
+                        st.info(f"**{shift.get('category', '')}** ? ï¿½ {shift.get('observation', '')}")
 
                 st.divider()
 
@@ -1000,21 +1000,21 @@ elif page == "?? Review Queue":
                     badge_level = "low"
 
                 with st.expander(
-                    f"{txn.get('description', 'Unknown')} — "
-                    f"AED {amount:,.2f} — {txn.get('transaction_date', '')}"
+                    f"{txn.get('description', 'Unknown')} ï¿½ "
+                    f"AED {amount:,.2f} ï¿½ {txn.get('transaction_date', '')}"
                 ):
                     st.markdown(risk_stamp(badge_level), unsafe_allow_html=True)
                     st.markdown("")
                     col1, col2 = st.columns(2)
                     with col1:
-                        st.markdown(f"**Description** — {txn.get('description', '')}")
-                        st.markdown(f"**Amount** — AED {amount:,.2f}")
-                        st.markdown(f"**Type** — {txn.get('transaction_type', '').upper()}")
-                        st.markdown(f"**Category** — {txn.get('category', '')}")
+                        st.markdown(f"**Description** ï¿½ {txn.get('description', '')}")
+                        st.markdown(f"**Amount** ï¿½ AED {amount:,.2f}")
+                        st.markdown(f"**Type** ï¿½ {txn.get('transaction_type', '').upper()}")
+                        st.markdown(f"**Category** ï¿½ {txn.get('category', '')}")
                     with col2:
-                        st.markdown(f"**Date** — {txn.get('transaction_date', '')}")
-                        st.markdown(f"**Flag Reason** — {txn.get('flag_reason', '')}")
-                        st.markdown(f"**Currency** — {txn.get('currency', 'AED')}")
+                        st.markdown(f"**Date** ï¿½ {txn.get('transaction_date', '')}")
+                        st.markdown(f"**Flag Reason** ï¿½ {txn.get('flag_reason', '')}")
+                        st.markdown(f"**Currency** ï¿½ {txn.get('currency', 'AED')}")
 
                     st.divider()
                     notes = st.text_input("Reviewer notes (optional)", key=f"notes_{txn['id']}")
@@ -1075,8 +1075,8 @@ elif page == "?? Audit Log":
                 first_log = run_logs[0]
 
                 with st.expander(
-                    f"Run {run_id[:8]}… — "
-                    f"{first_log.get('created_at', '')[:19]} — "
+                    f"Run {run_id[:8]}ï¿½ ï¿½ "
+                    f"{first_log.get('created_at', '')[:19]} ï¿½ "
                     f"{len(run_logs)} agent entries"
                 ):
                     for log in run_logs:
@@ -1085,7 +1085,7 @@ elif page == "?? Audit Log":
                             st.markdown(f"**{log.get('agent_name', '').upper()}**")
                             st.code(log.get('action', ''), language=None)
                         with col2:
-                            st.markdown(f"**Decision** — {log.get('decision', '')}")
+                            st.markdown(f"**Decision** ï¿½ {log.get('decision', '')}")
                             st.caption(log.get('reasoning', '')[:150])
                         st.divider()
 
@@ -1188,7 +1188,7 @@ elif page == "?? System Health":
                 time_ms = ext.get("extraction_time_ms", 0)
                 confidence = ext.get("confidence_scores", {})
 
-                with st.expander(f"Document {doc_id}… — {model} — {tokens} tokens — {time_ms}ms"):
+                with st.expander(f"Document {doc_id}ï¿½ ï¿½ {model} ï¿½ {tokens} tokens ï¿½ {time_ms}ms"):
                     st.json(confidence)
                     fields = ext.get("extracted_fields", {})
                     st.json(fields)
@@ -1200,3 +1200,4 @@ elif page == "?? System Health":
         st.exception(e)
 
 render_footer()
+
