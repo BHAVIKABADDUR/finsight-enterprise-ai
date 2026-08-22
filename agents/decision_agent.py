@@ -50,10 +50,10 @@ def decision_agent_node(state: FinSightState) -> FinSightState:
 Original Query: {state['query']}
 
 Analysis Results:
-{json.dumps(analysis, indent=2, default=str)}
+{json.dumps(analysis, default=str)[:400]}
 
 Transaction Summary:
-{json.dumps(extracted.get('transactions', {}).get('summary', {}), indent=2)}
+{json.dumps(extracted.get("transactions", {}).get("summary", {}), default=str)[:200]}
 
 Make a final decision on the risk level and required actions.
 """

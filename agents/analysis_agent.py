@@ -61,13 +61,13 @@ Key Findings: {extraction_summary.get('key_findings', [])}
 Anomalies Found: {extraction_summary.get('anomalies_found', [])}
 
 Flagged Transactions ({len(flagged)} total):
-{json.dumps(flagged, indent=2, default=str)}
+{json.dumps(flagged[:3], default=str)[:300]}
 
 Top Spending Categories:
-{json.dumps(top_categories, indent=2, default=str)}
+{json.dumps(top_categories[:3], default=str)[:200]}
 
 Monthly Trends:
-{json.dumps(monthly_trends, indent=2, default=str)}
+{json.dumps(monthly_trends[:3], default=str)[:200]}
 """
 
     messages = [
