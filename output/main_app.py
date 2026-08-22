@@ -1134,7 +1134,7 @@ elif page == "System Health":
         col6.metric("Cost (USD)", f"${health['total_cost_usd']:.4f}")
         col7.metric("Audit Entries", health["total_audit_entries"])
         col8.metric("Status", health["system_status"].upper(), delta="Online", delta_color="normal")
-        st.markdown(status_chip("? HEALTHY", "healthy"), unsafe_allow_html=True)
+        st.markdown(status_chip("HEALTHY", "healthy"), unsafe_allow_html=True)
         st.divider()
 
         st.markdown('<div class="section-label">Agent Performance</div>', unsafe_allow_html=True)
