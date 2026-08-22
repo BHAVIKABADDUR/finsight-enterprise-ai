@@ -1,4 +1,4 @@
-# llmops/report_generator.py
+﻿# llmops/report_generator.py
 # Generates professional PDF reports from agent analysis results
 # Used for the "Export Report" feature in Streamlit
 

@@ -1,4 +1,4 @@
-# tests/test_agents.py
+﻿# tests/test_agents.py
 # Unit tests for agent safety logic — SQL filter validation, HITL triggers
 # Run with: pytest tests/test_agents.py -v
 

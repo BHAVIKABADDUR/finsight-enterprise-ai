@@ -1,4 +1,4 @@
-import os
+﻿import os
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -7,7 +7,7 @@ def test_groq():
     from groq import Groq
     client = Groq(api_key=os.getenv("GROQ_API_KEY"))
     response = client.chat.completions.create(
-        model="compound-beta",
+        model="qwen/qwen3.6-27b",
         messages=[{"role": "user", "content": "Say hello in one word"}]
     )
     print(f"✅ Groq working: {response.choices[0].message.content}")

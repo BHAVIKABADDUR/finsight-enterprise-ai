@@ -1,4 +1,4 @@
-# pipeline/bronze.py
+﻿# pipeline/bronze.py
 # Bronze Layer — Raw file ingestion into Supabase Storage
 # Stores original files untouched + creates document registry entry
 

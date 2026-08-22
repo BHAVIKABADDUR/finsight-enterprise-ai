@@ -1,4 +1,4 @@
-# hitl/interrupt_handler.py
+﻿# hitl/interrupt_handler.py
 # Implements LangGraph HITL interrupt pattern
 # Pauses agent execution for human approval on high-risk decisions
 

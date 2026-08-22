@@ -1,4 +1,4 @@
-# ingestion/generate_synthetic_data.py
+﻿# ingestion/generate_synthetic_data.py
 # Generates realistic UAE financial documents for testing
 # Expanded version: 3 business accounts, 6 months of data
 

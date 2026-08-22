@@ -1,4 +1,4 @@
-# llmops/cost_tracker.py
+﻿# llmops/cost_tracker.py
 # Tracks token costs and latency per agent run
 # Stores metrics in Supabase for the observability dashboard
 
@@ -14,7 +14,7 @@ load_dotenv()
 # ── Groq pricing (per 1M tokens) ─────────────────────────────────────────────
 # As of June 2026 — free tier has no cost but we track usage
 GROQ_PRICING = {
-    "compound-beta": {
+    "qwen/qwen3.6-27b": {
         "input": 0.59,   # USD per 1M input tokens
         "output": 0.79   # USD per 1M output tokens
     }
@@ -43,7 +43,7 @@ def update_run_metrics(
     input_tokens: int,
     output_tokens: int,
     latency_ms: int,
-    model: str = "compound-beta"
+    model: str = "qwen/qwen3.6-27b"
 ):
     """
     Update run metrics for a specific agent call.

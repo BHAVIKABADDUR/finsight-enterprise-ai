@@ -1,4 +1,4 @@
-# llmops/evaluator.py
+﻿# llmops/evaluator.py
 # Evaluation pipeline — scores extraction quality and agent decisions
 # This is what LLMOps engineers build to ensure system reliability
 
@@ -140,7 +140,7 @@ Analysis Results:
 
     try:
         response = client.chat.completions.create(
-            model="compound-beta",
+            model="qwen/qwen3.6-27b",
             messages=[
                 {"role": "system", "content": eval_prompt},
                 {"role": "user", "content": context}

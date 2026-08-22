@@ -1,4 +1,4 @@
-# mcp_servers/retrieve_documents.py
+﻿# mcp_servers/retrieve_documents.py
 # MCP Server 4: Semantic document search via Qdrant
 # Agents use this to find relevant documents by meaning not just keywords
 

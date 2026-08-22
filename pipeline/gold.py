@@ -1,4 +1,4 @@
-# pipeline/gold.py
+﻿# pipeline/gold.py
 # Gold Layer — KPI aggregations from Silver data
 # Produces business-ready summaries for dashboards and agents
 

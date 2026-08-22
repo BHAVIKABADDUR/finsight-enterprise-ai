@@ -1,4 +1,4 @@
-# mcp_servers/log_audit.py
+﻿# mcp_servers/log_audit.py
 # MCP Server 2: Write agent decisions to the audit log
 # Every agent decision gets recorded here for governance
 

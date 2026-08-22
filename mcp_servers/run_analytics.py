@@ -1,4 +1,4 @@
-# mcp_servers/run_analytics.py
+﻿# mcp_servers/run_analytics.py
 # MCP Server 3: Query Gold layer KPI tables
 # Agents use this to get business intelligence summaries
 

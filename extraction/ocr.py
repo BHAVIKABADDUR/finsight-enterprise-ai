@@ -1,4 +1,4 @@
-# extraction/ocr.py
+﻿# extraction/ocr.py
 # OCR layer — converts PDF pages to text using Tesseract
 # Handles both text-based and scanned PDFs
 

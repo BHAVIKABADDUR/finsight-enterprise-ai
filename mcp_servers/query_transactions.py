@@ -1,4 +1,4 @@
-# mcp_servers/query_transactions.py
+﻿# mcp_servers/query_transactions.py
 # MCP Server 1: Query transactions from Supabase
 # Agents use this to filter, search and analyse transaction data
 

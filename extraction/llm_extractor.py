@@ -1,4 +1,4 @@
-# extraction/llm_extractor.py
+﻿# extraction/llm_extractor.py
 # LLM extraction layer — uses Groq/Llama to extract structured data from OCR text
 # Pydantic validates the output structure
 
@@ -145,7 +145,7 @@ def extract_with_llm(
     start_time = datetime.utcnow()
     
     response = client.chat.completions.create(
-        model="compound-beta",
+        model="qwen/qwen3.6-27b",
         messages=[
             {"role": "system", "content": prompt},
             {"role": "user", "content": f"Extract from this document:\n\n{ocr_text}"}
@@ -183,7 +183,7 @@ def extract_with_llm(
         "extracted_fields": extracted,
         "extraction_time_ms": extraction_time_ms,
         "tokens_used": tokens_used,
-        "model_used": "compound-beta"
+        "model_used": "qwen/qwen3.6-27b"
     }
 
 # ── Validate with Pydantic ────────────────────────────────────────────────────

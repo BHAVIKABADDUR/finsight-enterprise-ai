@@ -1,4 +1,4 @@
-# output/main_app.py
+﻿# output/main_app.py
 # FinSight Enterprise AI — Streamlit Frontend
 # Run with: streamlit run output/main_app.py
 

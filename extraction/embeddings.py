@@ -1,4 +1,4 @@
-# extraction/embeddings.py
+﻿# extraction/embeddings.py
 # Indexes documents into Qdrant for semantic search
 # Converts text into vectors using sentence-transformers
 
