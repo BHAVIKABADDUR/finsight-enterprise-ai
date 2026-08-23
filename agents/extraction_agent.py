@@ -22,7 +22,7 @@ def get_llm():
     return ChatGroq(
         model="qwen/qwen3.6-27b",
         api_key=api_key,
-        temperature=0
+        temperature=0, max_tokens=500
     )
 
 # ── MCP tool caller ───────────────────────────────────────────────────────────
