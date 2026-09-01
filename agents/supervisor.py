@@ -26,9 +26,10 @@ def get_llm():
         except Exception:
             pass
     return ChatGroq(
-        model="openai/gpt-oss-20b",
+        model="qwen/qwen3.6-27b",
         api_key=api_key,
-        temperature=0, max_tokens=500
+        temperature=0,
+        max_tokens=300
     )
 
 # ── Supervisor system prompt ──────────────────────────────────────────────────

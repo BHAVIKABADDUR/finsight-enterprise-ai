@@ -453,7 +453,16 @@ if page == "Analysis":
                 with st.spinner("Agents analysing financial data..."):
                     try:
                         from agents.graph import run_analysis
+                        import time
+                for attempt in range(3):
+                    try:
                         result = run_analysis(query)
+                        break
+                    except Exception as e:
+                        if attempt < 2 and ('413' in str(e) or '429' in str(e)):
+                            time.sleep(10)
+                        else:
+                            raise
                         st.session_state["last_analysis_result"] = result
                         st.session_state["last_analysis_query"] = query
 
@@ -636,7 +645,16 @@ if page == "Analysis":
                             f"Extracted data: {str(validated)[:500]}. "
                             f"Identify any risks, anomalies or concerns."
                         )
+                        import time
+                for attempt in range(3):
+                    try:
                         result = run_analysis(query)
+                        break
+                    except Exception as e:
+                        if attempt < 2 and ('413' in str(e) or '429' in str(e)):
+                            time.sleep(10)
+                        else:
+                            raise
                         decision = result.get("final_decision", {})
 
                         st.info("Step 4/4 - Saving results")
