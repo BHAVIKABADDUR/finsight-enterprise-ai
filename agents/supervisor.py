@@ -29,7 +29,7 @@ def get_llm():
         model="qwen/qwen3.6-27b",
         api_key=api_key,
         temperature=0,
-        max_tokens=300
+        max_tokens=200
     )
 
 # ── Supervisor system prompt ──────────────────────────────────────────────────

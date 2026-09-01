@@ -30,7 +30,7 @@ def get_llm():
     return ChatGroq(
         model="compound-beta",
         api_key=api_key,
-        temperature=0, max_tokens=300
+        temperature=0, max_tokens=200
     )
 
 ANALYSIS_PROMPT = """FinSight Analysis Agent. Return ONLY JSON: {"spending_analysis":{"highest_category":"","spending_pattern":""},"anomaly_assessment":{"total_flagged":0,"risk_level":"medium","most_serious":""},"trends":{"observation":"","concern":""},"key_risks":[""],"analysis_summary":""}"""
@@ -61,13 +61,13 @@ Key Findings: {extraction_summary.get('key_findings', [])}
 Anomalies Found: {extraction_summary.get('anomalies_found', [])}
 
 Flagged Transactions ({len(flagged)} total):
-{json.dumps(flagged[:3], default=str)[:300]}
+{json.dumps(flagged[:1], default=str)[:100]}
 
 Top Spending Categories:
-{json.dumps(top_categories[:3], default=str)[:200]}
+{json.dumps(top_categories[:1], default=str)[:80]}
 
 Monthly Trends:
-{json.dumps(monthly_trends[:3], default=str)[:200]}
+{json.dumps(}
 """
 
     messages = [

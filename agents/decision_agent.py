@@ -30,7 +30,7 @@ def get_llm():
     return ChatGroq(
         model="compound-beta",
         api_key=api_key,
-        temperature=0, max_tokens=300
+        temperature=0, max_tokens=200
     )
 
 DECISION_PROMPT = """FinSight Decision Agent. Return ONLY JSON: {"overall_risk_rating":"MEDIUM","confidence":0.8,"primary_concerns":[""],"recommended_actions":[{"action":"","priority":"immediate","reason":""}],"requires_human_review":true,"human_review_reason":"","executive_summary":"","decision_reasoning":""}"""
