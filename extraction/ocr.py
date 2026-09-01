@@ -52,3 +52,5 @@ def extract_text_from_directory(directory):
         except Exception as e:
             results[pdf_path.name] = ""
     return results
+
+# v2
