@@ -36,7 +36,7 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     for i, page in enumerate(pages):
         logger.info(f"Running OCR on page {i+1}/{len(pages)}")
         page_text = pytesseract.image_to_string(page, config="--psm 6")
-        full_text.append(f"--- Page {i+1} ---
+        full_text.append("--- Page " + str(i+1) + " ---
 {page_text}")
     combined = "
 
