@@ -32,11 +32,7 @@ def call_mcp_tool(server_module: str, tool_name: str, arguments: dict) -> dict:
     On Streamlit Cloud, MCP subprocess calls are not supported —
     falls back to direct Supabase queries automatically.
     """
-    is_cloud = (
-        os.getenv("HOME", "").startswith("/home/adminuser") or
-        os.getenv("STREAMLIT_SHARING_MODE") is not None or
-        not os.path.exists("mcp_servers/query_transactions.py")
-    )
+    is_cloud = True  # Always use direct Supabase fallback
     if is_cloud:
         logger.info(f"Cloud environment — using direct Supabase fallback for {tool_name}")
         return _fallback_query(tool_name, arguments)

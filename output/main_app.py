@@ -3,7 +3,13 @@
 # Run with: streamlit run output/main_app.py
 
 import sys
+import socket
+_orig_getaddrinfo = socket.getaddrinfo
+def _ipv4_only(host, port, family=0, type=0, proto=0, flags=0):
+    return [r for r in _orig_getaddrinfo(host, port, family, type, proto, flags) if r[0] == socket.AF_INET] or _orig_getaddrinfo(host, port, family, type, proto, flags)
+socket.getaddrinfo = _ipv4_only
 import os
+os.environ["HTTPX_IPV6_DISABLED"] = "1"
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import uuid

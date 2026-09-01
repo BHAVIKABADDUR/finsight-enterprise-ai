@@ -13,11 +13,7 @@ load_dotenv()
 def call_mcp_audit_tool(tool_name: str, arguments: dict) -> dict:
     """Call the log_audit MCP server."""
     # ── Cloud environment detection ───────────────────────────────────────────
-    is_cloud = (
-        os.getenv("HOME", "").startswith("/home/adminuser") or
-        os.getenv("STREAMLIT_SHARING_MODE") is not None or
-        not os.path.exists("mcp_servers/log_audit.py")
-    )
+    is_cloud = True  # Always use direct Supabase fallback
     if is_cloud:
         logger.info(f"Cloud environment — using direct Supabase fallback for {tool_name}")
         return _fallback_audit(tool_name, arguments)
