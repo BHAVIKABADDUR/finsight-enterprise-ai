@@ -66,8 +66,7 @@ Flagged Transactions ({len(flagged)} total):
 Top Spending Categories:
 {json.dumps(top_categories[:1], default=str)[:80]}
 
-Monthly Trends:
-{json.dumps(}
+
 """
 
     messages = [
